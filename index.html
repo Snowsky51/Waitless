@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaitLess</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f7fb;
+  color:#172033;
+}
+
+header{
+  background:#111827;
+  color:white;
+  padding:28px 20px;
+  text-align:center;
+}
+
+header h1{
+  margin:0;
+  font-size:34px;
+}
+
+header p{
+  margin:8px 0 0;
+  color:#d1d5db;
+}
+
+main{
+  max-width:650px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  margin-bottom:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+h2{
+  margin-top:0;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:0;
+  border-radius:10px;
+  background:#10b981;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#059669;
+}
+
+.report{
+  border-bottom:1px solid #eee;
+  padding:14px 0;
+}
+
+.report:last-child{
+  border-bottom:0;
+}
+
+.wait{
+  font-size:22px;
+  font-weight:bold;
+  color:#059669;
+}
+
+.status{
+  text-align:center;
+  color:#6b7280;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  color:#6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>⏱ WaitLess</h1>
+  <p>Moins d'attente. Plus de temps pour vous.</p>
+</header>
+
+<main>
+
+<div class="card">
+  <h2>Signaler une attente</h2>
+
+  <input
+    id="placeName"
+    type="text"
+    placeholder="Nom du lieu"
+  >
+
+  <input
+    id="waitMinutes"
+    type="number"
+    min="0"
+    placeholder="Temps d'attente en minutes"
+  >
+
+  <button onclick="sendReport()">
+    Publier le temps d'attente
+  </button>
+
+  <p id="message" class="status"></p>
+</div>
+
+<div class="card">
+  <h2>Temps d'attente récents</h2>
+
+  <div id="reports">
+    <p class="status">Chargement...</p>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  WaitLess • Temps d'attente partagés en temps réel
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://ropvmaqgtfjsrnipyvth.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_fvPrFKonEXySg93KfxuoFQ_BVjUjCER;"
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+// AJOUTER UN SIGNALEMENT
+
+async function sendReport(){
+
+  const placeName =
+    document.getElementById("placeName")
+    .value.trim();
+
+  const waitMinutes =
+    parseInt(
+      document.getElementById("waitMinutes").value
+    );
+
+  const message =
+    document.getElementById("message");
+
+  if(
+    !placeName ||
+    Number.isNaN(waitMinutes) ||
+    waitMinutes < 0
+  ){
+    message.textContent =
+      "Indique le lieu et un temps d'attente valide.";
+    return;
+  }
+
+  message.textContent = "Publication...";
+
+  const placeId =
+    placeName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-|-$/g,"");
+
+  const { error } =
+    await supabaseClient
+      .from("wait_report")
+      .insert({
+        place_id: placeId,
+        place_name: placeName,
+        wait_minutes: waitMinutes
+      });
+
+  if(error){
+    console.error(error);
+    message.textContent =
+      "Impossible de publier pour le moment.";
+    return;
+  }
+
+  message.textContent =
+    "✓ Temps d'attente publié !";
+
+  document.getElementById("placeName").value="";
+  document.getElementById("waitMinutes").value="";
+
+  loadReports();
+}
+
+
+// CHARGER LES SIGNALEMENTS
+
+async function loadReports(){
+
+  const container =
+    document.getElementById("reports");
+
+  const { data, error } =
+    await supabaseClient
+      .from("wait_report")
+      .select(
+        "id,created_at,place_name,wait_minutes"
+      )
+      .order("created_at",{
+        ascending:false
+      })
+      .limit(20);
+
+  if(error){
+    console.error(error);
+    container.innerHTML =
+      '<p class="status">Impossible de charger les données.</p>';
+    return;
+  }
+
+  if(!data || data.length===0){
+    container.innerHTML =
+      '<p class="status">Aucun signalement pour le moment.</p>';
+    return;
+  }
+
+  container.innerHTML="";
+
+  data.forEach(report=>{
+
+    const item =
+      document.createElement("div");
+
+    item.className="report";
+
+    const name =
+      document.createElement("strong");
+
+    name.textContent =
+      report.place_name || "Lieu";
+
+    const wait =
+      document.createElement("div");
+
+    wait.className="wait";
+    wait.textContent =
+      report.wait_minutes + " min";
+
+    const date =
+      document.createElement("small");
+
+    date.textContent =
+      new Date(report.created_at)
+      .toLocaleString("fr-FR");
+
+    item.appendChild(name);
+    item.appendChild(wait);
+    item.appendChild(date);
+
+    container.appendChild(item);
+  });
+}
+
+
+// ACTUALISATION TEMPS RÉEL
+
+supabaseClient
+.channel("waitless-live")
+.on(
+  "postgres_changes",
+  {
+    event:"*",
+    schema:"public",
+    table:"wait_report"
+  },
+  loadReports
+)
+.subscribe();
+
+loadReports();
+
+</script>
+
+</body>
+</html>
