@@ -234,13 +234,12 @@ async function sendReport(){
   latitude: window.userLatitude || null,
   longitude: window.userLongitude || null
 });
-  if(error){
-    console.error(error);
-    message.textContent =
-      "Impossible de publier pour le moment.";
+  
+if (error) {
+    console.error("Erreur Supabase :", error);
+    message.textContent = "Erreur : " + error.message;
     return;
-  }
-
+}
   message.textContent =
     "✓ Temps d'attente publié !";
 
