@@ -230,9 +230,10 @@ async function sendReport(){
 .insert({
   place_id: placeId,
   place_name: placeName,
-  wait_minutes: waitMinutes
+  wait_minutes: waitMinutes,
+  latitude: window.userLatitude || null,
+  longitude: window.userLongitude || null
 });
-  
 if (error) {
     console.error("Erreur Supabase :", error);
     message.textContent = "Erreur : " + error.message;
