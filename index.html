@@ -122,6 +122,10 @@ footer{
     placeholder="Nom du lieu"
   >
 
+  <button type="button" onclick="getLocation()">
+  📍 Utiliser ma position
+</button>
+  
   <input
     id="waitMinutes"
     type="number"
@@ -166,7 +170,25 @@ supabase.createClient(
   SUPABASE_KEY
 );
 
+  function getLocation() {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas disponible sur cet appareil.");
+    return;
+  }
 
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      window.userLatitude = position.coords.latitude;
+      window.userLongitude = position.coords.longitude;
+
+      document.getElementById("placeName").value = "Ma position";
+      alert("📍 Position récupérée !");
+    },
+    function() {
+      alert("Impossible de récupérer votre position.");
+    }
+  );
+}
 // AJOUTER UN SIGNALEMENT
 
 async function sendReport(){
@@ -206,12 +228,13 @@ async function sendReport(){
   const { error } =
     await supabaseClient
       .from("wait_report")
-      .insert({
-        place_id: placeId,
-        place_name: placeName,
-        wait_minutes: waitMinutes
-      });
-
+.insert({
+  place_id: placeId,
+  place_name: placeName,
+  wait_minutes: waitMinutes,
+  latitude: window.userLatitude || null,
+  longitude: window.userLongitude || null
+});
   if(error){
     console.error(error);
     message.textContent =
