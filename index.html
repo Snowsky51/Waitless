@@ -230,9 +230,7 @@ async function sendReport(){
 .insert({
   place_id: placeId,
   place_name: placeName,
-  wait_minutes: waitMinutes,
-  latitude: window.userLatitude || null,
-  longitude: window.userLongitude || null
+  wait_minutes: waitMinutes
 });
   
 if (error) {
