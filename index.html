@@ -297,6 +297,21 @@ async function loadReports(){
   container.innerHTML="";
 
   data.forEach(report=>{
+    if (
+  Number.isFinite(window.userLatitude) &&
+  Number.isFinite(window.userLongitude)
+) {
+  if (report.latitude == null || report.longitude == null) return;
+
+  const distance = distanceKm(
+    window.userLatitude,
+    window.userLongitude,
+    Number(report.latitude),
+    Number(report.longitude)
+  );
+
+  if (!Number.isFinite(distance) || distance > 5) return;
+}
 
     const item =
       document.createElement("div");
