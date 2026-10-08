@@ -313,6 +313,19 @@ async function loadReports(){
   if (!Number.isFinite(distance) || distance > 5) return;
 }
 
+const distanceTexte =
+  Number.isFinite(window.userLatitude) &&
+  Number.isFinite(window.userLongitude) &&
+  report.latitude != null &&
+  report.longitude != null
+    ? distanceKm(
+        window.userLatitude,
+        window.userLongitude,
+        Number(report.latitude),
+        Number(report.longitude)
+      ).toFixed(1) + " km"
+    : "";
+
     const item =
       document.createElement("div");
 
@@ -341,6 +354,14 @@ async function loadReports(){
     item.appendChild(name);
     item.appendChild(wait);
     item.appendChild(date);
+
+    
+if (distanceTexte) {
+  const distanceElement = document.createElement("div");
+  distanceElement.textContent = "📍 À " + distanceTexte;
+  item.appendChild(distanceElement);
+}
+
 
     container.appendChild(item);
   });
