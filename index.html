@@ -348,7 +348,7 @@ async function loadReports(){
       .order("created_at",{
         ascending:false
       })
-      .limit(20);
+      .limit(1000);
 
   if(error){
     console.error(error);
@@ -379,7 +379,7 @@ async function loadReports(){
     Number(report.longitude)
   );
 
-  if (!Number.isFinite(distance) || distance > 5) return;
+  if (!Number.isFinite(distance)) return;
 }
 
 const distanceTexte =
