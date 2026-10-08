@@ -259,8 +259,7 @@ async function loadReports(){
   const { data, error } =
     await supabaseClient
       .from("wait_report")
-      .select(
-        "id,created_at,place_name,wait_minutes"
+      "id,created_at,place_name,wait_minutes,latitude,longitude"
       )
       .order("created_at",{
         ascending:false
