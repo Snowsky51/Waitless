@@ -394,7 +394,12 @@ supabaseClient
     schema:"public",
     table:"wait_report"
   },
-  loadReports
+  
+() => {
+  loadReports();
+  loadMapMarkers();
+}
+
 )
 .subscribe();
 
