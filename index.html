@@ -407,6 +407,40 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+const markers = L.layerGroup().addTo(map);
+
+async function loadMapMarkers() {
+  const { data, error } = await supabaseClient
+    .from("wait_report")
+    .select("place_name,wait_minutes,latitude,longitude");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  markers.clearLayers();
+
+  (data || []).forEach(report => {
+    if (report.latitude == null || report.longitude == null) return;
+
+    const lat = Number(report.latitude);
+    const lon = Number(report.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+    const popup = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = report.place_name || "Lieu";
+    const wait = document.createElement("p");
+    wait.textContent = `${report.wait_minutes} min d'attente`;
+    popup.append(name, wait);
+
+    L.marker([lat, lon]).addTo(markers).bindPopup(popup);
+  });
+}
+
+loadMapMarkers();
+
 </script>
 
 </body>
