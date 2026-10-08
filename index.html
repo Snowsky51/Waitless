@@ -218,6 +218,43 @@ if (!champLieu.value.trim()) {
 }
 // AJOUTER UN SIGNALEMENT
 
+async function rechercherEtablissement() {
+  const lieu = document.getElementById("placeName").value.trim();
+
+  if (!lieu) {
+    alert("Indique le nom et la ville de l'établissement.");
+    return;
+  }
+
+  try {
+    const url = "https://nominatim.openstreetmap.org/search?" +
+      new URLSearchParams({
+        q: lieu + ", France",
+        format: "json",
+        limit: "5",
+        countrycodes: "fr"
+      });
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Recherche impossible");
+
+    const resultats = await response.json();
+
+    if (!resultats.length) {
+      alert("Établissement introuvable. Précise son adresse.");
+      return;
+    }
+
+    const lieuTrouve = resultats[0];
+    window.userLatitude = Number(lieuTrouve.lat);
+    window.userLongitude = Number(lieuTrouve.lon);
+
+    alert("Adresse trouvée : " + lieuTrouve.display_name);
+  } catch (error) {
+    alert("Erreur pendant la recherche de l'établissement.");
+  }
+}
+
 async function sendReport(){
 
   const placeName =
