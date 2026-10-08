@@ -486,6 +486,7 @@ async function searchCity() {
     if (!response.ok) throw new Error("Recherche impossible");
 
     const results = await response.json();
+    alert("Résultats trouvés : " + results.length);
 
     if (results.length === 0) {
       message.textContent = "Ville introuvable.";
