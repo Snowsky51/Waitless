@@ -460,7 +460,6 @@ async function loadMapMarkers() {
 loadMapMarkers();
 
 async function searchCity() {
-  alert("Ville recherchée : " + document.getElementById("citySearch").value);
   const city = document
     .getElementById("citySearch").value.trim();
 
@@ -486,7 +485,7 @@ async function searchCity() {
     if (!response.ok) throw new Error("Recherche impossible");
 
     const results = await response.json();
-    alert("Résultats trouvés : " + results.length);
+    
 
     if (results.length === 0) {
       message.textContent = "Ville introuvable.";
