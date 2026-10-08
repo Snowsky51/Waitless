@@ -479,7 +479,7 @@ async function loadMapMarkers() {
   }
 
   markers.clearLayers();
-
+console.log("Signalements reçus :", data);
   (data || []).forEach(report => {
     if (report.latitude == null || report.longitude == null) return;
 
