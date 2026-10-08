@@ -440,7 +440,10 @@ async function loadMapMarkers() {
     wait.textContent = `${report.wait_minutes} min d'attente`;
     popup.append(name, wait);
 
-    L.marker([lat, lon]).addTo(markers).bindPopup(popup);
+    L.marker([lat, lon])
+  .addTo(markers)
+  .bindPopup(popup)
+  .openPopup();
   });
 }
 
