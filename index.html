@@ -205,7 +205,10 @@ supabase.createClient(
       window.userLatitude = position.coords.latitude;
       window.userLongitude = position.coords.longitude;
 
-      document.getElementById("placeName").value = "Ma position";
+      const champLieu = document.getElementById("placeName");
+if (!champLieu.value.trim()) {
+  champLieu.value = "Ma position";
+}
       alert("📍 Position récupérée !");
     },
     function() {
