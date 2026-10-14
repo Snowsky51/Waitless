@@ -247,7 +247,28 @@ const url = "https://nominatim.openstreetmap.org/search?" +
       return;
     }
 
-    const lieuTrouve = resultats[0];
+    
+const choix = prompt(
+  "Choisis une adresse :\n" +
+  results.map((r, i) =>
+    (i + 1) + ". " + r.display_name
+  ).join("\n"),
+  "1"
+);
+
+if (choix === null) return;
+
+const index = Number(choix) - 1;
+
+if (!Number.isInteger(index) ||
+    index < 0 ||
+    index >= results.length) {
+  alert("Choix invalide.");
+  return;
+}
+
+const lieuTrouve = results[index];
+
     window.userLatitude = Number(lieuTrouve.lat);
     window.userLongitude = Number(lieuTrouve.lon);
 window.selectedPlace = {
