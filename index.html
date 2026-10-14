@@ -229,15 +229,13 @@ async function rechercherEtablissement() {
     alert("Indique le nom et la ville de l'établissement.");
     return;
   }
-
-  try {
-    const url = "https://nominatim.openstreetmap.org/search?" +
-      new URLSearchParams({
-        q: lieu + ", France",
-        format: "json",
-        limit: "5",
-        countrycodes: "fr"
-      });
+        try {
+const url = "https://nominatim.openstreetmap.org/search?" +
+  new URLSearchParams({
+    q: lieu,
+    format: "json",
+    limit: "5"
+  });
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Recherche impossible");
