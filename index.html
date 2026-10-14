@@ -250,7 +250,7 @@ const url = "https://nominatim.openstreetmap.org/search?" +
     
 const choix = prompt(
   "Choisis une adresse :\n" +
-  results.map((r, i) =>
+  resultats.map((r, i) =>
     (i + 1) + ". " + r.display_name
   ).join("\n"),
   "1"
@@ -262,12 +262,12 @@ const index = Number(choix) - 1;
 
 if (!Number.isInteger(index) ||
     index < 0 ||
-    index >= results.length) {
+    index >= resultats.length) {
   alert("Choix invalide.");
   return;
 }
 
-const lieuTrouve = results[index];
+const lieuTrouve = resultats[index];
 
     window.userLatitude = Number(lieuTrouve.lat);
     window.userLongitude = Number(lieuTrouve.lon);
