@@ -318,7 +318,12 @@ if (!Number.isFinite(latitude) ||
     console.error("Erreur géolocalisation :", error);
   }
 }
-
+if (!Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)) {
+  message.textContent =
+    "Adresse GPS introuvable. Vérifie le lieu.";
+  return;
+}
   const { error } =
     await supabaseClient
       .from("wait_report")
