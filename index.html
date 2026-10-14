@@ -278,7 +278,7 @@ window.selectedPlace = {
 };
     alert("Adresse trouvée : " + lieuTrouve.display_name);
   } catch (error) {
-    alert("Erreur pendant la recherche de l'établissement.");
+    alert("Erreur : " + error.message);
   }
 }
 
