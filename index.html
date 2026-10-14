@@ -566,9 +566,8 @@ async function searchCity() {
     map.setView([
       Number(results[0].lat),
       Number(results[0].lon)
-    ], 12);
-
-    message.textContent = "Carte centrée sur " + city;
+     ], 12);
+                message.textContent = "Carte centrée sur " + city + " | GPS : " + results[0].lat + ", " + results[0].lon;
   } catch (error) {
     message.textContent = "Erreur de recherche.";
   }
