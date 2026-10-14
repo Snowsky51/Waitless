@@ -249,27 +249,30 @@ const url = "https://nominatim.openstreetmap.org/search?" +
       return;
     }
 
-    
-const choix = prompt(
-  "Choisis une adresse :\n" +
-  resultats.map((r, i) =>
-    (i + 1) + ". " + r.display_name
-  ).join("\n"),
-  "1"
-);
+          
+const zone = document.getElementById("placeResults");
+zone.innerHTML = "";
+window.selectedPlace = null;
 
-if (choix === null) return;
+const index = await new Promise((resolve) => {
+  resultats.forEach((adresse, i) => {
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.textContent = adresse.display_name;
+    bouton.style.cssText =
+      "display:block;width:100%;text-align:left;margin:8px 0;padding:12px;";
 
-const index = Number(choix) - 1;
+    bouton.onclick = () => {
+      zone.innerHTML = "";
+      resolve(i);
+    };
 
-if (!Number.isInteger(index) ||
-    index < 0 ||
-    index >= resultats.length) {
-  alert("Choix invalide.");
-  return;
-}
+    zone.appendChild(bouton);
+  });
+});
 
 const lieuTrouve = resultats[index];
+
 
     window.userLatitude = Number(lieuTrouve.lat);
     window.userLongitude = Number(lieuTrouve.lon);
