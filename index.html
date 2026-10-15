@@ -516,8 +516,20 @@ supabaseClient
 
 loadReports();
 
-const map = L.map("map").setView([46.603354, 1.888334], 6);
+const savedView = JSON.parse(localStorage.getItem("waitlessMapView") || "null");
 
+const map = L.map("map").setView(
+  savedView?.center ?? [46.603354, 1.888334],
+  savedView?.zoom ?? 6
+);
+
+map.on("moveend", () => {
+  const center = map.getCenter();
+  localStorage.setItem("waitlessMapView", JSON.stringify({
+    center: [center.lat, center.lng],
+    zoom: map.getZoom()
+  }));
+});  
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
