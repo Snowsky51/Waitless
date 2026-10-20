@@ -1,0 +1,46 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const {PGlite}=require('@electric-sql/pglite');
+const root=__dirname;
+async function databaseTests(){
+ const db=new PGlite();
+ await db.exec(`create role anon; create role authenticated;
+ create schema auth;create table auth.users(id uuid primary key);
+ create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ grant usage on schema auth,public to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`);
+ await db.exec(fs.readFileSync(path.join(root,'20261020_online_queues.sql'),'utf8'));
+ const upgrade=fs.readFileSync(path.join(root,'20261020_queue_controls.sql'),'utf8');
+ await db.exec(upgrade);await db.exec(upgrade);
+ const owner='10000000-0000-4000-8000-000000000001',a='10000000-0000-4000-8000-000000000002',b='10000000-0000-4000-8000-000000000003',stranger='10000000-0000-4000-8000-000000000004';
+ for(const id of [owner,a,b,stranger])await db.query('insert into auth.users values($1)',[id]);
+ async function as(id,sql,args=[]){await db.exec('begin');try{await db.query("select set_config('request.jwt.claim.sub',$1,true)",[id||'']);await db.exec(id?'set local role authenticated':'set local role anon');const r=await db.query(sql,args);await db.exec('commit');return r.rows;}catch(e){await db.exec('rollback');throw e;}}
+ const scalar=async(id,sql,args)=>Object.values((await as(id,sql,args))[0])[0];
+ const venue=await scalar(owner,"select wl_create_venue('Café privé','Nantes','France',8)");
+ const ticketA=await scalar(a,'select wl_join($1)',[venue]);
+ assert.equal(await scalar(a,'select wl_join($1)',[venue]),ticketA);
+ const ticketB=await scalar(b,'select wl_join($1)',[venue]);
+ let row=(await as(b,'select * from wl_my_tickets()'))[0];assert.equal(Number(row.position),2);assert.equal(Number(row.estimated_minutes),8);
+ await assert.rejects(as(a,'select wl_set_open($1,false)',[venue]),/NOT_VENUE_OWNER/);
+ await assert.rejects(as(null,'select wl_join($1)',[venue]),/permission denied/);
+ assert.equal(await scalar(owner,'select wl_set_open($1,false)',[venue]),false);
+ await assert.rejects(as(stranger,'select wl_join($1)',[venue]),/QUEUE_CLOSED/);
+ assert.equal(await scalar(a,'select wl_join($1)',[venue]),ticketA,'Existing ticket survives closure');
+ const overview=(await as(null,'select * from wl_get_venue($1)',[venue]))[0];assert.equal(overview.is_open,false);assert.equal(Number(overview.waiting),2);assert.ok(!('owner_id' in overview)&&!('user_id' in overview));
+ await assert.rejects(as(a,"select wl_manage($1,'call')",[venue]),/NOT_VENUE_OWNER/);
+ assert.equal(await scalar(owner,"select wl_manage($1,'call')",[venue]),ticketA);
+ await assert.rejects(as(owner,"select wl_manage($1,'call')",[venue]),/COMPLETE_CURRENT_FIRST/);
+ row=(await as(b,'select * from wl_my_tickets()'))[0];assert.equal(Number(row.position),1);assert.equal(Number(row.estimated_minutes),8,'In-service customer counts toward wait');
+ assert.equal((await as(stranger,'select * from wl_tickets')).length,0,'Private ticket RLS');
+ assert.equal((await as(a,'select * from wl_tickets')).length,1,'Client only sees own ticket');
+ await assert.rejects(as(b,'select wl_cancel($1)',[ticketA]),/TICKET_NOT_FOUND/);
+ await scalar(owner,"select wl_manage($1,'complete',$2)",[venue,ticketA]);
+ row=(await as(b,'select * from wl_my_tickets()'))[0];assert.equal(Number(row.estimated_minutes),0);
+ await scalar(owner,'select wl_set_open($1,true)',[venue]);
+ await scalar(stranger,'select wl_join($1)',[venue]);
+ await assert.rejects(as(a,"update wl_venues set is_open=false where id=$1",[venue]),/permission denied/);
+ assert.equal(await scalar(b,'select wl_cancel($1)',[ticketB]),true);
+ const missing=await as(null,'select * from wl_get_venue($1)',['20000000-0000-4000-8000-000000000099']);assert.equal(missing.length,0);
+ const privileged=await db.query("select proname from pg_proc p join pg_namespace n on p.pronamespace=n.oid where n.nspname='public' and p.proname like 'wl_%' and p.prosecdef");assert.equal(privileged.rows.length,0,'No public SECURITY DEFINER queue endpoints');
+ await db.close();console.log('PASS PostgreSQL: close/open, duplicate safety, FIFO, waiting estimates, owner checks, anonymous denial, RLS isolation and migration re-run.');
+}
+databaseTests().catch(e=>{console.error(e);process.exitCode=1});

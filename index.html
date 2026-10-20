@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#101a39">
 <meta name="description" content="WaitLess — Prototype international de gestion des files d'attente pour le grand public et les entreprises.">
 <title>WaitLess — Global Edition</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{color-scheme:light;--ink:#172448;--muted:#67718b;--blue:#575af7;--dark:#111b3b;--mint:#32d6bb;--line:#e8ecf5;--bg:#f6f8fc;--white:#fff;--radius:22px;--shadow:0 12px 38px rgba(22,35,79,.065)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.56}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #abb0ff;outline-offset:2px}a{color:var(--blue)}
@@ -84,5 +86,6 @@ $('resetBtn').addEventListener('click',()=>confirmModal(t('resetTitle'),t('reset
 $('language').value=lang;translate();
 })();
 </script>
+<script src="test-guide.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "name": "waitless",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "python3 build_private_queues.py && node queue-controls.test.cjs && node private-ui.test.cjs",
+    "build": "node build-public.cjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "jsdom": "30.1.3"
+  }
+}
