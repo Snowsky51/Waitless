@@ -2,15 +2,18 @@
 
 ## État
 
-Le site public existant reste inchangé. `online.html` est une version en préparation,
+Le site public comporte un lien vers la version bêta des files partagées. `online.html` est une version en préparation,
 en français et en anglais ; l’interface mondiale existante conserve ses six langues.
-Les tables et fonctions SQL de ce dossier n’ont pas encore été appliquées au projet
-Supabase. Aucun abonnement, encaissement ou droit payant n’est activé.
+Les tables et fonctions SQL ont été appliquées au projet Supabase le 20 octobre 2026.
+Les contrôles confirment RLS actif sur les deux tables, les 46 signalements conservés
+et l’entrée dans une file réservée aux comptes connectés.
+Le Site URL et la redirection exacte vers online.html sont enregistrés.
+SMTP personnalisé absent : les inscriptions publiques restent bloquées. Aucun abonnement, encaissement ou droit payant n’est activé.
 
 ## Activation dans Supabase
 
 1. Vérifier le projet `ropvmaqgtfjsrnipyvth` et sauvegarder son schéma.
-2. Appliquer une fois `20261020_online_queues.sql`.
+2. Migration `20261020_online_queues.sql` déjà appliquée : ne pas la réexécuter.
    La migration est transactionnelle et ne modifie pas `wait_report`.
 3. Activer la connexion par e-mail avec liens de connexion, avec un SMTP de production.
 4. Configurer le Site URL sur `https://voluble-pie-7e8eda.netlify.app` et autoriser
@@ -20,8 +23,8 @@ Supabase. Aucun abonnement, encaissement ou droit payant n’est activé.
 6. Tester connexion, déconnexion, ticket en double, annulation, appel FIFO,
    fin du service et mises à jour sur deux appareils. Les mises à jour utilisent
    une actualisation toutes les 10 secondes, sans dépendre d’une publication Realtime.
-7. Après validation, remplacer l’avis de préparation et ajouter un lien vers
-   `online.html` dans la navigation principale. Ne pas remplacer la démo par erreur.
+7. Le lien vers `online.html` est ajouté. Après configuration SMTP et validation,
+   mettre à jour l’avis bêta pour refléter la disponibilité réelle.
 
 ## Protections
 
