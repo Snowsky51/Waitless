@@ -1,621 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WaitLess</title>
-  
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101a39">
+<meta name="description" content="WaitLess — Prototype international de gestion des files d'attente pour le grand public et les entreprises.">
+<title>WaitLess — Global Edition</title>
 <style>
-  #map {
-  width: 100%;
-  height: 350px;
-  border-radius: 12px;
-  margin-top: 20px;
-}
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f4f7fb;
-  color:#172033;
-}
-}
-header{
-  background:#111827;
-  color:white;
-  padding:28px 20px;
-  text-align:center;
-}
-
-header h1{
-  margin:0;
-  font-size:34px;
-}
-
-header p{
-  margin:8px 0 0;
-  color:#d1d5db;
-}
-
-main{
-  max-width:650px;
-  margin:auto;
-  padding:20px;
-}
-
-.card{
-  background:white;
-  padding:20px;
-  border-radius:18px;
-  margin-bottom:18px;
-  box-shadow:0 5px 20px rgba(0,0,0,.08);
-}
-
-h2{
-  margin-top:0;
-}
-
-input{
-  width:100%;
-  padding:14px;
-  margin:7px 0;
-  border:1px solid #d1d5db;
-  border-radius:10px;
-  font-size:16px;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border:0;
-  border-radius:10px;
-  background:#10b981;
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#059669;
-}
-
-.report{
-  border-bottom:1px solid #eee;
-  padding:14px 0;
-}
-
-.report:last-child{
-  border-bottom:0;
-}
-
-.wait{
-  font-size:22px;
-  font-weight:bold;
-  color:#059669;
-}
-
-.status{
-  text-align:center;
-  color:#6b7280;
-}
-
-footer{
-  text-align:center;
-  padding:20px;
-  color:#6b7280;
-}
+:root{color-scheme:light;--ink:#172448;--muted:#67718b;--blue:#575af7;--dark:#111b3b;--mint:#32d6bb;--line:#e8ecf5;--bg:#f6f8fc;--white:#fff;--radius:22px;--shadow:0 12px 38px rgba(22,35,79,.065)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.56}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #abb0ff;outline-offset:2px}a{color:var(--blue)}
+header{background:linear-gradient(118deg,#111b3b 0%,#232a77 67%,#4743a7 100%);color:#fff;padding:20px max(18px,calc((100vw - 1130px)/2)) 0}
+.top{display:flex;align-items:center;gap:14px;justify-content:space-between}.logo{display:flex;align-items:center;gap:11px;font-size:27px;font-weight:900;letter-spacing:-1.5px}.logomark{display:grid;place-items:center;width:38px;height:38px;background:var(--mint);color:#132247;font-size:24px;border-radius:13px;transform:rotate(-9deg)}.logomark span{transform:rotate(9deg)}.top-right{display:flex;gap:10px;align-items:center}.version{border:1px solid #ffffff55;background:#ffffff13;border-radius:100px;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.05em}.lang{background:#ffffff1b;border:1px solid #ffffff5b;color:#fff;border-radius:12px;padding:9px 10px}.lang option{color:#111827}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:20px;padding:43px 0 38px}.eyebrow{display:inline-block;color:#77efdb;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.hero h1{font-size:clamp(35px,5.8vw,62px);line-height:1.04;letter-spacing:-2px;margin:13px 0 18px;max-width:600px}.hero p{font-size:16px;line-height:1.6;opacity:.78;max-width:510px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.btn{border:none;border-radius:13px;padding:12px 16px;font-size:14px;font-weight:800;background:#edf0fb;color:var(--ink);transition:transform .16s ease,filter .16s ease}.btn:active{transform:scale(.98)}.btn.primary{color:#fff;background:var(--blue)}.btn.white{color:var(--dark);background:#fff}.btn.mint{background:var(--mint);color:var(--dark)}.btn.outline{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.danger{background:#fff0f0;color:#b42335}.btn.mini{padding:9px 12px;font-size:12px}.hero-stat{max-width:360px;margin-left:auto;background:#ffffff12;border:1px solid #ffffff30;border-radius:25px;padding:21px;backdrop-filter:blur(8px)}.hero-stat .eyebrow{letter-spacing:.04em}.statline{display:flex;justify-content:space-between;gap:20px;margin-top:15px;border-bottom:1px solid #ffffff24;padding-bottom:12px}.statline b{font-size:23px}.dot{width:9px;height:9px;display:inline-block;border-radius:50%;background:var(--mint);margin-right:7px}
+main{max-width:1130px;margin:auto;padding:24px 18px 100px}.notice{padding:14px 17px;background:#eff2ff;border:1px solid #dfe4ff;color:#384275;border-radius:16px;margin-bottom:22px;font-size:13px;line-height:1.6}.notice b{color:var(--ink)}
+.tabs{display:flex;gap:9px;margin-bottom:22px;flex-wrap:wrap}.tab{border:1px solid var(--line);border-radius:13px;padding:12px 15px;background:white;color:var(--muted);font-size:14px;font-weight:800}.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}.screen{display:none}.screen.active{display:block}.sectionhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:17px}.sectionhead h2{font-size:26px;letter-spacing:-.7px;margin:0 0 4px}.sub{font-size:13px;color:var(--muted);line-height:1.5}.card{background:#fff;border:1px solid #eef0f7;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}.filters{display:grid;grid-template-columns:2fr 1fr;gap:11px;margin-bottom:15px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:var(--muted);font-weight:800}.field input,.field select,.field textarea{border:1px solid #dfe4ef;background:white;padding:13px 13px;border-radius:13px;color:var(--ink);width:100%;min-width:0}.field input:focus,.field select:focus{border-color:var(--blue)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.place{display:flex;flex-direction:column;gap:14px;min-height:246px}.placehead{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.placeicon{font-size:24px;display:grid;place-items:center;background:#eff2ff;border-radius:15px;width:48px;height:48px}.place h3{font-size:17px;margin:0 0 5px;letter-spacing:-.2px}.flag{color:var(--muted);font-size:12px}.waitblock{display:flex;align-items:center;gap:11px;padding:13px;background:#f7f8fc;border-radius:14px}.waitnum{font-size:29px;font-weight:900;letter-spacing:-1px}.waitunit{font-size:12px;color:var(--muted);line-height:1.4}.pill{font-size:11px;font-weight:850;border-radius:99px;padding:6px 9px;background:#f1f5ff;color:#5363aa;white-space:nowrap}.pill.demo{background:#fff2db;color:#ad6d0d}.pill.local{background:#e6faf5;color:#127963}.actions{display:flex;gap:8px;margin-top:auto}.actions .btn{flex:1}.empty{padding:45px 20px;text-align:center;background:white;border:1px dashed #d7dfed;border-radius:20px;color:var(--muted)}.empty strong{color:var(--ink);display:block;margin:9px 0;font-size:18px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}.metric{padding:18px;border-radius:19px;background:white;border:1px solid var(--line)}.metric b{display:block;font-size:29px;letter-spacing:-1px}.metric span{color:var(--muted);font-size:13px}.ticket{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:13px}.ticket h3{margin:0 0 5px}.code{font-weight:900;letter-spacing:1px;color:var(--blue)}.status{font-size:12px;font-weight:800;border-radius:99px;padding:6px 11px;background:#ebeeff;color:#5159ab}.status.called{background:#d9fbec;color:#087653}.status.done{background:#ebeff3;color:#667085}.status.cancelled{background:#ffe8e9;color:#a12c41}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:15px}.stack>*+*{margin-top:14px}.card h3{margin:0 0 12px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.formgrid .wide{grid-column:1/-1}.manager{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}.manager:first-of-type{border-top:0}.manager h4{margin:0 0 6px}.manager .actions{flex:initial;flex-wrap:wrap;justify-content:flex-end}.manager .actions .btn{flex:initial}.bar{height:9px;border-radius:20px;background:#edf0fb;overflow:hidden;margin-top:10px}.barfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--mint));width:30%}.pricing{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.plan h3{font-size:21px;margin-bottom:7px}.price{font-size:39px;font-weight:900;letter-spacing:-1.5px;margin:18px 0 3px}.plan ul{color:var(--muted);padding-left:19px;line-height:2;font-size:14px;min-height:145px}.plan.featured{border:2px solid var(--blue);position:relative}.featureflag{position:absolute;top:-14px;right:16px;background:var(--blue);color:white;padding:6px 12px;border-radius:50px;font-size:11px;font-weight:800}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;line-height:1.8}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#121a37;color:white;padding:14px 19px;border-radius:13px;box-shadow:0 8px 30px #0003;z-index:20;font-size:13px;max-width:calc(100vw - 28px)}.modal{display:none;position:fixed;inset:0;background:#141c3bbb;z-index:40;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.dialog{width:min(480px,100%);background:white;padding:25px;border-radius:23px;box-shadow:0 20px 90px #0003}.dialog h2{margin:0 0 10px}.dialog p{color:var(--muted);line-height:1.6}.dialog .actions{margin-top:24px}.tiny{font-size:11px;color:var(--muted)}
+@media(max-width:850px){.grid,.pricing{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-stat{display:none}.hero{grid-template-columns:1fr}.twocol{grid-template-columns:1fr}}
+@media(max-width:600px){.grid,.pricing,.formgrid,.filters,.metrics{grid-template-columns:1fr}.formgrid .wide{grid-column:auto}.hero{padding:35px 0}.hero h1{letter-spacing:-1.3px}.tabs{display:grid;grid-template-columns:repeat(2,1fr)}.tab{font-size:12px;padding:12px 8px}.manager,.ticket{align-items:flex-start;flex-direction:column}.manager .actions{justify-content:flex-start}.top{align-items:flex-start}.top-right{flex-direction:column;align-items:flex-end}.logo{font-size:23px}.version{font-size:10px}.card{padding:16px}}
 </style>
 </head>
-
 <body>
-
-<header>
-  <h1>⏱ WaitLess</h1>
-  <p>Moins d'attente. Plus de temps pour vous.</p>
-</header>
-
+<header><div class="top"><div class="logo"><div class="logomark"><span>↗</span></div>WaitLess</div><div class="top-right"><span class="version">GLOBAL • PROTOTYPE</span><label class="sr" for="language" style="position:absolute;left:-9999px">Language</label><select class="lang" id="language" aria-label="Language"><option value="fr">🇫🇷 Français</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="pt">🇧🇷 Português</option><option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option></select></div></div><div class="hero"><div><span class="eyebrow" data-i="eyebrow">APPLICATION INTERNATIONALE</span><h1 data-i="headline">Moins d'attente.<br>Plus de liberté.</h1><p data-i="heroDescription">Explore les files d'attente, prends un ticket et gère ton établissement dans une même application.</p><div class="hero-actions"><button class="btn mint" data-go="explore" data-i="exploreBtn">Découvrir les lieux</button><button class="btn white" data-go="business" data-i="businessBtn">Espace entreprise</button></div></div><div class="hero-stat"><span class="eyebrow"><span class="dot"></span><span data-i="prototype">Prototype interactif</span></span><div class="statline"><div><span data-i="languages">Langues disponibles</span><br><b>6</b></div><div style="text-align:right"><span data-i="coverage">Pays testables</span><br><b>8+</b></div></div><p data-i="heroNote" style="font-size:13px;margin-bottom:0">Les données présentées sont fictives ou enregistrées sur cet appareil.</p></div></div></header>
 <main>
-
-<div class="card">
-  <h2>Signaler une attente</h2>
-
-  <input
-    id="placeName"
-    type="text"
-    placeholder="Nom du lieu"
-  >
-
-<button type="button" onclick="rechercherEtablissement()">
-  🔎 Rechercher un établissement
-</button>
-
-<div id="placeResults" style="margin-top:12px;"></div>
-
-  <button type="button" onclick="getLocation()">
-  📍 Utiliser ma position
-</button>
-  
-  <input
-    id="waitMinutes"
-    type="number"
-    min="0"
-    placeholder="Temps d'attente en minutes"
-  >
-
-  <button onclick="sendReport()">
-    Publier le temps d'attente
-  </button>
-
-  <p id="message" class="status"></p>
-</div>
-
-<div class="card">
-  <h2>Temps d'attente récents</h2>
-
-  <div id="reports">
-    <p class="status">Chargement...</p>
-  </div>
-</div>
-
-<div class="card">
-  <h2>🔎 Rechercher une ville</h2>
-  <input id="citySearch"
-    placeholder="Nantes, Paris, Rennes">
-  <button onclick="searchCity()">
-    Rechercher
-  </button>
-  <p id="cityMessage"></p>
-</div>
-
-<div class="card">
-  <h2>🗺️ Carte des temps d'attente</h2>
-  <div id="map"></div>
-</div>
-
+<div class="notice"><b data-i="noticeTitle">Mode démonstration hors ligne.</b> <span data-i="noticeBody">Tu peux tester les fonctions immédiatement. Les tickets, lieux et indicateurs sont enregistrés uniquement sur cet appareil : ils ne sont pas partagés entre utilisateurs. Aucun abonnement ni paiement réel n'est activé.</span></div>
+<div class="tabs" role="tablist" aria-label="Sections WaitLess"><button class="tab" data-go="reports">📍 Carte / Live</button><button class="tab active" data-go="explore" data-i="navExplore">🌍 Explorer</button><button class="tab" data-go="tickets" data-i="navTickets">🎟️ Mes tickets</button><button class="tab" data-go="business" data-i="navBusiness">🏢 Entreprises</button><button class="tab" data-go="pricing" data-i="navPricing">💎 Abonnements</button></div>
+<section class="screen" id="reports"><div class="card"><h2>Carte et signalements / Live reports</h2><p>Les signalements sont partagés via Supabase. Les tickets et établissements des autres onglets restent une démonstration locale. / Reports are shared through Supabase. Queue tickets and venues in other tabs remain a local demo.</p></div><iframe src="reports.html" title="WaitLess — carte et signalements" loading="lazy" style="width:100%;height:1100px;border:1px solid #e8ecf5;border-radius:22px;background:white" allow="geolocation 'self'"></iframe></section><section class="screen active" id="explore"><div class="sectionhead"><div><h2 data-i="find">Explorer le monde</h2><div class="sub" data-i="findSub">Les établissements ci-dessous sont des exemples, pas des files d'attente réelles.</div></div></div><div class="filters"><div class="field"><label for="search" data-i="searchLabel">Établissement ou ville</label><input id="search" placeholder="Paris, London, Tokyo…"></div><div class="field"><label for="country" data-i="countryLabel">Pays</label><select id="country"></select></div></div><div id="places" class="grid"></div></section>
+<section class="screen" id="tickets"><div class="sectionhead"><div><h2 data-i="myTickets">Mes tickets</h2><div class="sub" data-i="myTicketsSub">Tu retrouves ici tes tickets de démonstration ou ceux de tes lieux locaux.</div></div></div><div id="ticketList"></div></section>
+<section class="screen" id="business"><div class="sectionhead"><div><h2 data-i="dashboard">Tableau de bord entreprise</h2><div class="sub" data-i="dashboardSub">Crée un établissement, reçois des tickets et fais avancer la file.</div></div></div><div class="metrics"><div class="metric"><b id="mPlaces">0</b><span data-i="mPlaces">Établissements</span></div><div class="metric"><b id="mWaiting">0</b><span data-i="mWaiting">Tickets en attente</span></div><div class="metric"><b id="mServed">0</b><span data-i="mServed">Clients servis</span></div></div><div class="twocol"><div class="card"><h3 data-i="addPlace">Créer un établissement</h3><form id="placeForm" class="formgrid"><div class="field wide"><label for="venueName" data-i="venueName">Nom de l'établissement</label><input id="venueName" name="venueName" maxlength="70" required placeholder="Ex. Mon salon"></div><div class="field"><label for="venueCity" data-i="city">Ville</label><input id="venueCity" maxlength="55" required placeholder="Nantes"></div><div class="field"><label for="venueCountry" data-i="countryLabel">Pays</label><input id="venueCountry" maxlength="55" required placeholder="France"></div><div class="field"><label for="venueType" data-i="type">Type d'activité</label><select id="venueType"><option value="🏬">🏬 Retail / Store</option><option value="☕">☕ Café</option><option value="🍽️">🍽️ Restaurant</option><option value="🏥">🏥 Health</option><option value="💇">💇 Salon</option><option value="🏢">🏢 Services</option></select></div><div class="field"><label for="venueMinutes" data-i="duration">Minutes par client</label><input id="venueMinutes" type="number" min="1" max="180" value="10" required></div><button class="btn primary wide" type="submit" data-i="createPlace">Créer mon établissement</button></form></div><div class="card"><h3 data-i="manageQueues">Gérer les files</h3><p class="sub" data-i="managerInfo">Tu peux gérer les lieux exemples et ceux que tu crées, pour tester le parcours complet.</p><div id="managerList"></div></div></div><div class="card" style="margin-top:15px"><h3 data-i="dataTools">Sauvegarde et données</h3><p class="sub" data-i="dataInfo">Exporte les données locales pour conserver tes essais, puis importe-les sur le même appareil ou un autre.</p><div class="actions" style="margin-top:15px;flex-wrap:wrap"><button id="exportBtn" class="btn outline" data-i="exportData">Exporter les données</button><label class="btn outline" for="importFile" data-i="importData" style="cursor:pointer;display:inline-block">Importer des données</label><input type="file" id="importFile" accept="application/json,.json" style="display:none"><button id="resetBtn" class="btn danger" data-i="resetData">Réinitialiser la démo</button></div></div></section>
+<section class="screen" id="pricing"><div class="sectionhead"><div><h2 data-i="plans">Une offre pour tous</h2><div class="sub" data-i="plansSub">Tarifs envisagés pour préparer la monétisation internationale. Aucun paiement réel.</div></div></div><div class="pricing"><article class="card plan"><span class="pill" data-i="publicBadge">GRAND PUBLIC</span><h3 data-i="free">WaitLess Free</h3><div class="price">0 €</div><div class="sub" data-i="perMonth">par mois</div><ul><li data-i="freeA">Rechercher des établissements</li><li data-i="freeB">Prendre un ticket numérique</li><li data-i="freeC">Suivre l'avancement de la file</li></ul><button class="btn outline" data-go="explore" data-i="tryFree">Tester gratuitement</button></article><article class="card plan featured"><span class="featureflag" data-i="planned">OFFRE ENVISAGÉE</span><span class="pill" data-i="publicBadge2">GRAND PUBLIC</span><h3>WaitLess Premium</h3><div class="price">2,99 €</div><div class="sub" data-i="perMonth">par mois</div><ul><li data-i="premiumA">Alertes avancées</li><li data-i="premiumB">Historique et statistiques</li><li data-i="premiumC">Options premium à développer</li></ul><button class="btn" disabled data-i="notReady">Paiement bientôt disponible</button></article><article class="card plan"><span class="pill" data-i="businessBadge">ENTREPRISES</span><h3>WaitLess Pro</h3><div class="price">29 €</div><div class="sub" data-i="perMonth">par mois</div><ul><li data-i="proA">Gestion de plusieurs files</li><li data-i="proB">Statistiques et collaborateurs</li><li data-i="proC">Abonnement et factures à connecter</li></ul><button class="btn" disabled data-i="notReady">Paiement bientôt disponible</button></article></div><div class="card" style="margin-top:16px"><h3 data-i="worldwideTitle">Préparer une commercialisation mondiale</h3><p class="sub" data-i="worldwideBody">L'application est traduisible et la recherche accepte des villes et pays du monde entier. Pour une vraie disponibilité mondiale : hébergement public, authentification sécurisée, base Supabase, synchronisation en temps réel, Stripe (ou équivalent), taxes et conformité selon les pays sont indispensables.</p></div></section>
+<div class="footer">WaitLess Global Edition • 2026 • <span data-i="footer">Prototype fonctionnel, pas un service en ligne. Aucune donnée personnelle envoyée.</span></div>
 </main>
-
-<footer>
-  WaitLess • Temps d'attente partagés en temps réel
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h2 id="modalTitle"></h2><p id="modalDesc"></p><div class="actions"><button class="btn outline" id="modalCancel" data-i="cancel">Annuler</button><button class="btn primary" id="modalConfirm" data-i="confirm">Confirmer</button></div></div></div><div class="toast" id="toast" aria-live="polite" hidden></div>
 <script>
-
-const SUPABASE_URL =
-"https://ropvmaqgtfjsrnipyvth.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_fvPrFKonEXySg93KfxuoFQ_BVjUjCER";
-
-const supabaseClient =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-  function getLocation() {
-  if (!navigator.geolocation) {
-    alert("La géolocalisation n'est pas disponible sur cet appareil.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    function(position) {
-      window.userLatitude = position.coords.latitude;
-      window.userLongitude = position.coords.longitude;
-
-      const champLieu = document.getElementById("placeName");
-if (!champLieu.value.trim()) {
-  champLieu.value = "Ma position";
-}
-      alert("📍 Position récupérée !");
-    },
-    function() {
-      alert("Impossible de récupérer votre position.");
-    }
-  );
-}
-// AJOUTER UN SIGNALEMENT
-
-async function rechercherEtablissement() {
-  const lieu = document.getElementById("placeName").value.trim();
-
-  if (!lieu) {
-    alert("Indique le nom et la ville de l'établissement.");
-    return;
-  }
-        try {
-const url = "https://nominatim.openstreetmap.org/search?" +
-  new URLSearchParams({
-    q: lieu,
-    format: "json",
-    limit: "5"
-  });
-
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Recherche impossible");
-
-    const resultats = await response.json();
-
-    if (!resultats.length) {
-      alert("Établissement introuvable. Précise son adresse.");
-      return;
-    }
-
-          
-const zone = document.getElementById("placeResults");
-zone.innerHTML = "";
-window.selectedPlace = null;
-
-const index = await new Promise((resolve) => {
-  resultats.forEach((adresse, i) => {
-    const bouton = document.createElement("button");
-    bouton.type = "button";
-    bouton.textContent = adresse.display_name;
-    bouton.style.cssText =
-      "display:block;width:100%;text-align:left;margin:8px 0;padding:12px;";
-
-    bouton.onclick = () => {
-      zone.innerHTML = "";
-      resolve(i);
-    };
-
-    zone.appendChild(bouton);
-  });
-});
-
-const lieuTrouve = resultats[index];
-
-
-    window.userLatitude = Number(lieuTrouve.lat);
-    window.userLongitude = Number(lieuTrouve.lon);
-window.selectedPlace = {
-  name: lieu,
-  latitude: Number(lieuTrouve.lat),
-  longitude: Number(lieuTrouve.lon)
+(()=>{'use strict';
+const TEXT={
+fr:{eyebrow:"APPLICATION INTERNATIONALE",headline:"Moins d'attente.<br>Plus de liberté.",heroDescription:"Explore les files d'attente, prends un ticket et gère ton établissement dans une même application.",exploreBtn:"Découvrir les lieux",businessBtn:"Espace entreprise",prototype:"Prototype interactif",languages:"Langues disponibles",coverage:"Pays testables",heroNote:"Les données présentées sont fictives ou enregistrées sur cet appareil.",noticeTitle:"Mode démonstration hors ligne.",noticeBody:"Tu peux tester les fonctions immédiatement. Les tickets, lieux et indicateurs sont enregistrés uniquement sur cet appareil : ils ne sont pas partagés entre utilisateurs. Aucun abonnement ni paiement réel n'est activé.",navExplore:"🌍 Explorer",navTickets:"🎟️ Mes tickets",navBusiness:"🏢 Entreprises",navPricing:"💎 Abonnements",find:"Explorer le monde",findSub:"Les établissements ci-dessous sont des exemples, pas des files d'attente réelles.",searchLabel:"Établissement ou ville",countryLabel:"Pays",allCountries:"Tous les pays",myTickets:"Mes tickets",myTicketsSub:"Tu retrouves ici tes tickets de démonstration ou ceux de tes lieux locaux.",dashboard:"Tableau de bord entreprise",dashboardSub:"Crée un établissement, reçois des tickets et fais avancer la file.",mPlaces:"Établissements",mWaiting:"Tickets en attente",mServed:"Clients servis",addPlace:"Créer un établissement",venueName:"Nom de l'établissement",city:"Ville",type:"Type d'activité",duration:"Minutes par client",createPlace:"Créer mon établissement",manageQueues:"Gérer les files",managerInfo:"Tu peux gérer les lieux exemples et ceux que tu crées, pour tester le parcours complet.",dataTools:"Sauvegarde et données",dataInfo:"Exporte les données locales pour conserver tes essais, puis importe-les sur le même appareil ou un autre.",exportData:"Exporter les données",importData:"Importer des données",resetData:"Réinitialiser la démo",plans:"Une offre pour tous",plansSub:"Tarifs envisagés pour préparer la monétisation internationale. Aucun paiement réel.",publicBadge:"GRAND PUBLIC",publicBadge2:"GRAND PUBLIC",businessBadge:"ENTREPRISES",free:"WaitLess Free",perMonth:"par mois",freeA:"Rechercher des établissements",freeB:"Prendre un ticket numérique",freeC:"Suivre l'avancement de la file",tryFree:"Tester gratuitement",planned:"OFFRE ENVISAGÉE",premiumA:"Alertes avancées",premiumB:"Historique et statistiques",premiumC:"Options premium à développer",proA:"Gestion de plusieurs files",proB:"Statistiques et collaborateurs",proC:"Abonnement et factures à connecter",notReady:"Paiement bientôt disponible",worldwideTitle:"Préparer une commercialisation mondiale",worldwideBody:"L'application est traduisible et la recherche accepte des villes et pays du monde entier. Pour une vraie disponibilité mondiale : hébergement public, authentification sécurisée, base Supabase, synchronisation en temps réel, Stripe (ou équivalent), taxes et conformité selon les pays sont indispensables.",footer:"Prototype fonctionnel, pas un service en ligne. Aucune donnée personnelle envoyée.",cancel:"Annuler",confirm:"Confirmer",demo:"DÉMO",local:"LOCAL",waitMinutes:"minutes par client",waiting:"en attente",join:"Prendre un ticket",queueEmpty:"Aucun client en attente",noneFound:"Aucun établissement trouvé",trySearch:"Essaie une autre recherche ou crée ton établissement.",noTickets:"Aucun ticket",noTicketsHelp:"Explore les établissements pour prendre ton premier ticket.",ticketCode:"N° de ticket",position:"Position",estimated:"Attente estimée",statusWaiting:"En attente",statusCalled:"Appelé",statusDone:"Terminé",statusCancelled:"Annulé",leave:"Annuler mon ticket",callNext:"Appeler le suivant",complete:"Terminer",nothingToCall:"Aucun ticket à appeler",joinConfirm:"Prendre un ticket chez",joinDetail:"Ce ticket est une simulation locale. Il n'a aucune valeur dans une vraie file d'attente.",created:"Établissement créé sur cet appareil",ticketCreated:"Ticket créé",nextCalled:"Client appelé",ticketDone:"Service terminé",ticketRemoved:"Ticket annulé",alreadyTicket:"Tu as déjà un ticket actif ici",invalid:"Vérifie les champs saisis",exported:"Sauvegarde exportée",imported:"Données importées",importError:"Fichier invalide : aucune modification effectuée",resetTitle:"Effacer toutes les données ?",resetDesc:"Tous les lieux locaux et les tickets seront supprimés. Les exemples seront rétablis.",resetDone:"Démo réinitialisée",confirmCancel:"Annuler ce ticket ?",confirmCancelDesc:"Le ticket sera supprimé de la file locale.",served:"servis",active:"actifs",unitMinute:"min",tips:"Estimation = clients devant toi × durée moyenne par client. Elle n'est pas une prévision réelle.",countryOther:"Autre pays"},
+en:{eyebrow:"GLOBAL QUEUE PLATFORM",headline:"Less waiting.<br>More living.",heroDescription:"Explore queues, get a ticket and manage your business in one simple app.",exploreBtn:"Explore places",businessBtn:"Business dashboard",prototype:"Interactive prototype",languages:"Available languages",coverage:"Demo countries",heroNote:"All displayed data is simulated or saved on this device.",noticeTitle:"Offline demonstration mode.",noticeBody:"Try the features instantly. Places, tickets and metrics live only on this device and are not shared between users. No real subscriptions or payments are enabled.",navExplore:"🌍 Explore",navTickets:"🎟️ My tickets",navBusiness:"🏢 Business",navPricing:"💎 Plans",find:"Explore the world",findSub:"These are fictional examples, not real live queues.",searchLabel:"Place or city",countryLabel:"Country",allCountries:"All countries",myTickets:"My tickets",myTicketsSub:"Your demo tickets and locally created place tickets appear here.",dashboard:"Business dashboard",dashboardSub:"Create a place, receive tickets and manage a queue.",mPlaces:"Places",mWaiting:"Waiting tickets",mServed:"Served customers",addPlace:"Create a place",venueName:"Business name",city:"City",type:"Business type",duration:"Minutes per customer",createPlace:"Create my place",manageQueues:"Queue manager",managerInfo:"Manage example places and your own places to test the complete flow.",dataTools:"Backup and data",dataInfo:"Export your local test data and import it on this or another device.",exportData:"Export data",importData:"Import data",resetData:"Reset demo",plans:"A plan for everyone",plansSub:"Illustrative prices for future global monetization. No actual payments.",publicBadge:"FOR EVERYONE",publicBadge2:"FOR EVERYONE",businessBadge:"FOR BUSINESSES",free:"WaitLess Free",perMonth:"per month",freeA:"Discover places",freeB:"Take a digital ticket",freeC:"Follow your queue",tryFree:"Try for free",planned:"PLANNED OFFER",premiumA:"Advanced alerts",premiumB:"History and insights",premiumC:"Premium features to be built",proA:"Multiple queue management",proB:"Statistics and staff",proC:"Billing integration required",notReady:"Payments not yet available",worldwideTitle:"Preparing for worldwide launch",worldwideBody:"The interface supports multiple languages and worldwide city/country search. A true global service also requires public hosting, secure login, Supabase database, realtime sync, Stripe or equivalent, and country-specific legal/tax compliance.",footer:"Working prototype, not an online service. No personal data is transmitted.",cancel:"Cancel",confirm:"Confirm",demo:"DEMO",local:"LOCAL",waitMinutes:"minutes per customer",waiting:"waiting",join:"Get a ticket",queueEmpty:"No one waiting",noneFound:"No places found",trySearch:"Try another search or create your place.",noTickets:"No tickets yet",noTicketsHelp:"Explore places to get your first ticket.",ticketCode:"Ticket number",position:"Position",estimated:"Estimated wait",statusWaiting:"Waiting",statusCalled:"Called",statusDone:"Completed",statusCancelled:"Cancelled",leave:"Cancel my ticket",callNext:"Call next",complete:"Complete",nothingToCall:"No tickets to call",joinConfirm:"Get a ticket at",joinDetail:"This is a local demo ticket, not valid in a real-world queue.",created:"Place created on this device",ticketCreated:"Ticket created",nextCalled:"Customer called",ticketDone:"Service completed",ticketRemoved:"Ticket cancelled",alreadyTicket:"You already have an active ticket here",invalid:"Please check your entries",exported:"Backup downloaded",imported:"Data imported",importError:"Invalid file: nothing was changed",resetTitle:"Delete all data?",resetDesc:"Your local places and tickets will be deleted. Demo examples will be restored.",resetDone:"Demo reset",confirmCancel:"Cancel ticket?",confirmCancelDesc:"The ticket will be removed from this local queue.",served:"served",active:"active",unitMinute:"min",tips:"Estimate = customers ahead × minutes per customer. This is not a real-world prediction.",countryOther:"Other country"},
+es:{eyebrow:"PLATAFORMA INTERNACIONAL",headline:"Menos espera.<br>Más vida.",heroDescription:"Explora las colas, consigue un turno y administra tu negocio en una sola aplicación.",exploreBtn:"Explorar lugares",businessBtn:"Para empresas",prototype:"Prototipo interactivo",languages:"Idiomas disponibles",coverage:"Países de prueba",heroNote:"Los datos son simulados o están guardados en este dispositivo.",noticeTitle:"Modo demostración sin conexión.",noticeBody:"Prueba las funciones. Los lugares y turnos se guardan solo en este dispositivo. No hay pagos ni suscripciones reales.",navExplore:"🌍 Explorar",navTickets:"🎟️ Mis turnos",navBusiness:"🏢 Empresas",navPricing:"💎 Planes",find:"Explorar el mundo",findSub:"Los establecimientos son ejemplos ficticios, no colas reales.",searchLabel:"Lugar o ciudad",countryLabel:"País",allCountries:"Todos los países",myTickets:"Mis turnos",myTicketsSub:"Aquí aparecen tus turnos de demostración.",dashboard:"Panel de empresa",dashboardSub:"Crea tu negocio y gestiona su cola.",mPlaces:"Lugares",mWaiting:"En espera",mServed:"Atendidos",addPlace:"Crear establecimiento",venueName:"Nombre",city:"Ciudad",type:"Tipo",duration:"Minutos por cliente",createPlace:"Crear establecimiento",manageQueues:"Gestionar colas",managerInfo:"Gestiona lugares de ejemplo y creados para probar el flujo.",dataTools:"Copias de seguridad",dataInfo:"Exporta o importa los datos locales.",exportData:"Exportar",importData:"Importar",resetData:"Reiniciar demo",plans:"Planes para todos",plansSub:"Precios orientativos. No hay pagos reales.",publicBadge:"PÚBLICO",publicBadge2:"PÚBLICO",businessBadge:"EMPRESAS",free:"WaitLess Gratis",perMonth:"por mes",freeA:"Buscar establecimientos",freeB:"Tomar turno digital",freeC:"Seguir la cola",tryFree:"Probar gratis",planned:"PLAN PREVISTO",premiumA:"Alertas avanzadas",premiumB:"Historial y estadísticas",premiumC:"Funciones por desarrollar",proA:"Varias colas",proB:"Estadísticas y equipo",proC:"Facturación por conectar",notReady:"Pago no disponible",worldwideTitle:"Preparar el lanzamiento mundial",worldwideBody:"Para ofrecer un servicio mundial real hacen falta alojamiento público, cuentas seguras, base de datos, sincronización en tiempo real, pagos y cumplimiento normativo.",footer:"Prototipo, no servicio online. No se envían datos personales.",cancel:"Cancelar",confirm:"Confirmar",demo:"DEMO",local:"LOCAL",waitMinutes:"minutos por cliente",waiting:"esperando",join:"Tomar turno",queueEmpty:"Sin clientes",noneFound:"No hay resultados",trySearch:"Prueba otra búsqueda.",noTickets:"Sin turnos",noTicketsHelp:"Explora lugares para tomar tu primer turno.",ticketCode:"Turno",position:"Posición",estimated:"Espera estimada",statusWaiting:"En espera",statusCalled:"Llamado",statusDone:"Terminado",statusCancelled:"Cancelado",leave:"Cancelar turno",callNext:"Llamar siguiente",complete:"Completar",nothingToCall:"Sin turnos",joinConfirm:"Tomar turno en",joinDetail:"Esta es una simulación local, no un turno real.",created:"Lugar creado",ticketCreated:"Turno creado",nextCalled:"Cliente llamado",ticketDone:"Servicio terminado",ticketRemoved:"Turno cancelado",alreadyTicket:"Ya tienes un turno aquí",invalid:"Revisa los campos",exported:"Exportado",imported:"Importado",importError:"Archivo inválido",resetTitle:"¿Borrar datos?",resetDesc:"Se eliminarán los datos locales.",resetDone:"Reiniciado",confirmCancel:"¿Cancelar turno?",confirmCancelDesc:"Se eliminará de la cola local.",served:"atendidos",active:"activos",unitMinute:"min",tips:"Estimación local, no tiempo real.",countryOther:"Otro país"},
+pt:{eyebrow:"PLATAFORMA GLOBAL",headline:"Menos espera.<br>Mais vida.",heroDescription:"Explore filas, pegue uma senha e gerencie seu negócio em um só aplicativo.",exploreBtn:"Explorar locais",businessBtn:"Empresas",prototype:"Protótipo interativo",languages:"Idiomas",coverage:"Países de demonstração",heroNote:"Os dados são fictícios ou salvos neste dispositivo.",noticeTitle:"Modo de demonstração offline.",noticeBody:"Teste as funções. As senhas e os locais são salvos apenas neste dispositivo. Não há pagamentos reais.",navExplore:"🌍 Explorar",navTickets:"🎟️ Minhas senhas",navBusiness:"🏢 Empresas",navPricing:"💎 Planos",find:"Explorar o mundo",findSub:"Exemplos fictícios, não filas reais.",searchLabel:"Local ou cidade",countryLabel:"País",allCountries:"Todos os países",myTickets:"Minhas senhas",myTicketsSub:"As senhas de demonstração aparecem aqui.",dashboard:"Painel empresarial",dashboardSub:"Crie locais e gerencie filas.",mPlaces:"Locais",mWaiting:"Aguardando",mServed:"Atendidos",addPlace:"Criar local",venueName:"Nome",city:"Cidade",type:"Tipo",duration:"Minutos por cliente",createPlace:"Criar local",manageQueues:"Gerenciar filas",managerInfo:"Gerencie locais de exemplo e seus locais.",dataTools:"Dados e backup",dataInfo:"Exporte e importe os dados locais.",exportData:"Exportar",importData:"Importar",resetData:"Reiniciar demo",plans:"Planos para todos",plansSub:"Preços ilustrativos. Sem pagamentos reais.",publicBadge:"PÚBLICO",publicBadge2:"PÚBLICO",businessBadge:"EMPRESAS",free:"WaitLess Free",perMonth:"por mês",freeA:"Encontrar locais",freeB:"Pegar senha digital",freeC:"Acompanhar fila",tryFree:"Testar grátis",planned:"PLANO PREVISTO",premiumA:"Alertas avançados",premiumB:"Histórico e relatórios",premiumC:"Funções futuras",proA:"Várias filas",proB:"Estatísticas e equipe",proC:"Pagamentos a integrar",notReady:"Pagamento indisponível",worldwideTitle:"Preparando lançamento global",worldwideBody:"Para ser global de verdade são necessários hospedagem pública, login seguro, banco de dados, sincronização, pagamentos e conformidade legal.",footer:"Protótipo, não serviço online. Nenhum dado pessoal é enviado.",cancel:"Cancelar",confirm:"Confirmar",demo:"DEMO",local:"LOCAL",waitMinutes:"minutos por cliente",waiting:"aguardando",join:"Pegar senha",queueEmpty:"Ninguém aguardando",noneFound:"Nenhum resultado",trySearch:"Tente outra busca.",noTickets:"Sem senhas",noTicketsHelp:"Explore locais e pegue sua primeira senha.",ticketCode:"Senha",position:"Posição",estimated:"Espera estimada",statusWaiting:"Aguardando",statusCalled:"Chamado",statusDone:"Concluído",statusCancelled:"Cancelado",leave:"Cancelar senha",callNext:"Chamar próximo",complete:"Concluir",nothingToCall:"Ninguém aguardando",joinConfirm:"Pegar senha em",joinDetail:"Demonstração local, sem validade em filas reais.",created:"Local criado",ticketCreated:"Senha criada",nextCalled:"Cliente chamado",ticketDone:"Concluído",ticketRemoved:"Cancelado",alreadyTicket:"Você já tem senha aqui",invalid:"Verifique os campos",exported:"Exportado",imported:"Importado",importError:"Arquivo inválido",resetTitle:"Apagar dados?",resetDesc:"Dados locais serão removidos.",resetDone:"Reiniciado",confirmCancel:"Cancelar senha?",confirmCancelDesc:"A senha será removida.",served:"atendidos",active:"ativos",unitMinute:"min",tips:"Estimativa local, não é previsão real.",countryOther:"Outro país"},
+de:{eyebrow:"INTERNATIONALE PLATTFORM",headline:"Weniger warten.<br>Mehr erleben.",heroDescription:"Warteschlangen finden, Tickets ziehen und dein Unternehmen verwalten.",exploreBtn:"Orte entdecken",businessBtn:"Für Unternehmen",prototype:"Interaktiver Prototyp",languages:"Sprachen",coverage:"Demo-Länder",heroNote:"Alle Daten sind fiktiv oder auf diesem Gerät gespeichert.",noticeTitle:"Offline-Demomodus.",noticeBody:"Funktionen sofort testen. Alle Orte und Tickets bleiben auf diesem Gerät. Keine echten Zahlungen.",navExplore:"🌍 Entdecken",navTickets:"🎟️ Meine Tickets",navBusiness:"🏢 Unternehmen",navPricing:"💎 Tarife",find:"Weltweit entdecken",findSub:"Fiktive Beispiele, keine echten Warteschlangen.",searchLabel:"Ort oder Stadt",countryLabel:"Land",allCountries:"Alle Länder",myTickets:"Meine Tickets",myTicketsSub:"Hier siehst du deine Demo-Tickets.",dashboard:"Unternehmens-Dashboard",dashboardSub:"Erstelle einen Standort und verwalte die Schlange.",mPlaces:"Standorte",mWaiting:"Wartende",mServed:"Bediente Kunden",addPlace:"Standort erstellen",venueName:"Name",city:"Stadt",type:"Art",duration:"Minuten pro Kunde",createPlace:"Standort erstellen",manageQueues:"Warteschlangen",managerInfo:"Verwalte Demo- und eigene Standorte.",dataTools:"Datensicherung",dataInfo:"Lokale Daten exportieren oder importieren.",exportData:"Exportieren",importData:"Importieren",resetData:"Demo zurücksetzen",plans:"Pläne für alle",plansSub:"Geplante Preise. Keine echten Zahlungen.",publicBadge:"PRIVAT",publicBadge2:"PRIVAT",businessBadge:"UNTERNEHMEN",free:"WaitLess Free",perMonth:"pro Monat",freeA:"Standorte suchen",freeB:"Digitales Ticket",freeC:"Warteschlange verfolgen",tryFree:"Kostenlos testen",planned:"GEPLANT",premiumA:"Erweiterte Hinweise",premiumB:"Verlauf und Statistiken",premiumC:"Weitere Funktionen geplant",proA:"Mehrere Warteschlangen",proB:"Statistik und Personal",proC:"Zahlungsintegration nötig",notReady:"Zahlung noch nicht möglich",worldwideTitle:"Globalen Start vorbereiten",worldwideBody:"Ein echter weltweiter Dienst benötigt Hosting, sichere Anmeldung, Datenbank, Echtzeitsynchronisierung, Zahlungen sowie rechtliche und steuerliche Compliance.",footer:"Funktionsprototyp, kein Onlinedienst. Keine persönlichen Daten versendet.",cancel:"Abbrechen",confirm:"Bestätigen",demo:"DEMO",local:"LOKAL",waitMinutes:"Minuten pro Kunde",waiting:"warten",join:"Ticket ziehen",queueEmpty:"Niemand wartet",noneFound:"Keine Ergebnisse",trySearch:"Andere Suche versuchen.",noTickets:"Keine Tickets",noTicketsHelp:"Entdecke Orte für dein erstes Ticket.",ticketCode:"Ticketnummer",position:"Position",estimated:"Geschätzte Wartezeit",statusWaiting:"Wartend",statusCalled:"Aufgerufen",statusDone:"Erledigt",statusCancelled:"Storniert",leave:"Ticket stornieren",callNext:"Nächsten aufrufen",complete:"Abschließen",nothingToCall:"Keine Tickets",joinConfirm:"Ticket ziehen bei",joinDetail:"Nur lokale Demo, kein echtes Warteticket.",created:"Standort erstellt",ticketCreated:"Ticket erstellt",nextCalled:"Kunde aufgerufen",ticketDone:"Abgeschlossen",ticketRemoved:"Ticket storniert",alreadyTicket:"Du hast hier schon ein Ticket",invalid:"Angaben prüfen",exported:"Exportiert",imported:"Importiert",importError:"Ungültige Datei",resetTitle:"Alle Daten löschen?",resetDesc:"Lokale Daten werden gelöscht.",resetDone:"Zurückgesetzt",confirmCancel:"Ticket stornieren?",confirmCancelDesc:"Das Ticket wird entfernt.",served:"bedient",active:"aktiv",unitMinute:"Min.",tips:"Nur lokale Schätzung, keine Echtzeitdaten.",countryOther:"Anderes Land"},
+it:{eyebrow:"PIATTAFORMA INTERNAZIONALE",headline:"Meno attesa.<br>Più libertà.",heroDescription:"Esplora le code, prendi un numero e gestisci la tua attività.",exploreBtn:"Esplora luoghi",businessBtn:"Per aziende",prototype:"Prototipo interattivo",languages:"Lingue",coverage:"Paesi di prova",heroNote:"I dati sono simulati o salvati sul dispositivo.",noticeTitle:"Modalità demo offline.",noticeBody:"Prova le funzioni. Luoghi e biglietti rimangono solo sul dispositivo. Nessun pagamento reale.",navExplore:"🌍 Esplora",navTickets:"🎟️ I miei ticket",navBusiness:"🏢 Aziende",navPricing:"💎 Abbonamenti",find:"Esplora il mondo",findSub:"Esempi fittizi, non code reali.",searchLabel:"Luogo o città",countryLabel:"Paese",allCountries:"Tutti i paesi",myTickets:"I miei ticket",myTicketsSub:"Qui trovi i ticket dimostrativi.",dashboard:"Pannello aziendale",dashboardSub:"Crea attività e gestisci le code.",mPlaces:"Luoghi",mWaiting:"In attesa",mServed:"Serviti",addPlace:"Crea attività",venueName:"Nome",city:"Città",type:"Tipo",duration:"Minuti per cliente",createPlace:"Crea attività",manageQueues:"Gestione code",managerInfo:"Gestisci i luoghi demo e quelli creati.",dataTools:"Dati e backup",dataInfo:"Esporta o importa i dati locali.",exportData:"Esporta",importData:"Importa",resetData:"Ripristina demo",plans:"Piani per tutti",plansSub:"Prezzi indicativi. Nessun pagamento reale.",publicBadge:"PUBBLICO",publicBadge2:"PUBBLICO",businessBadge:"AZIENDE",free:"WaitLess Free",perMonth:"al mese",freeA:"Cerca attività",freeB:"Prendi numero digitale",freeC:"Segui la coda",tryFree:"Prova gratis",planned:"PIANO PREVISTO",premiumA:"Avvisi avanzati",premiumB:"Storico e statistiche",premiumC:"Funzioni future",proA:"Gestione di più code",proB:"Statistiche e dipendenti",proC:"Fatturazione da integrare",notReady:"Pagamenti non disponibili",worldwideTitle:"Preparare il lancio globale",worldwideBody:"Un vero servizio globale richiede hosting, accessi sicuri, database, sincronizzazione, pagamenti e conformità legale e fiscale.",footer:"Prototipo, non servizio online. Nessun dato personale inviato.",cancel:"Annulla",confirm:"Conferma",demo:"DEMO",local:"LOCALE",waitMinutes:"minuti per cliente",waiting:"in attesa",join:"Prendi un ticket",queueEmpty:"Nessuno in attesa",noneFound:"Nessun risultato",trySearch:"Prova un'altra ricerca.",noTickets:"Nessun ticket",noTicketsHelp:"Esplora i luoghi e prendi un ticket.",ticketCode:"Numero",position:"Posizione",estimated:"Attesa stimata",statusWaiting:"In attesa",statusCalled:"Chiamato",statusDone:"Completato",statusCancelled:"Annullato",leave:"Annulla ticket",callNext:"Chiama prossimo",complete:"Completa",nothingToCall:"Nessun ticket",joinConfirm:"Prendi un ticket da",joinDetail:"Solo una simulazione locale, non un ticket reale.",created:"Attività creata",ticketCreated:"Ticket creato",nextCalled:"Cliente chiamato",ticketDone:"Completato",ticketRemoved:"Ticket annullato",alreadyTicket:"Hai già un ticket qui",invalid:"Verifica i campi",exported:"Esportato",imported:"Importato",importError:"File non valido",resetTitle:"Eliminare i dati?",resetDesc:"I dati locali verranno cancellati.",resetDone:"Ripristinato",confirmCancel:"Annullare il ticket?",confirmCancelDesc:"Sarà rimosso dalla coda.",served:"serviti",active:"attivi",unitMinute:"min",tips:"Stima locale, non una previsione reale.",countryOther:"Altro paese"}
 };
-    alert("Adresse trouvée : " + lieuTrouve.display_name);
-  } catch (error) {
-    alert("Erreur : " + error.message);
-  }
-}
-
-async function sendReport(){
-
-  const placeName =
-    document.getElementById("placeName")
-    .value.trim();
-
-  const waitMinutes =
-    parseInt(
-      document.getElementById("waitMinutes").value
-    );
-
-  const message =
-    document.getElementById("message");
-
-  if(
-    !placeName ||
-    Number.isNaN(waitMinutes) ||
-    waitMinutes < 0
-  ){
-    message.textContent =
-      "Indique le lieu et un temps d'attente valide.";
-    return;
-  }
-
-  message.textContent = "Publication...";
-
-  const placeId =
-    placeName
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g,"")
-      .replace(/[^a-z0-9]+/g,"-")
-      .replace(/^-|-$/g,"");
-
-let latitude = null;
-let longitude = null;
-
-if (
-  window.selectedPlace &&
-  window.selectedPlace.name === placeName
-) {
-  latitude = window.selectedPlace.latitude;
-  longitude = window.selectedPlace.longitude;
-}
-
-  
-if (
-  placeName === "Ma position" &&
-  Number.isFinite(window.userLatitude) &&
-  Number.isFinite(window.userLongitude)
-) {
-  latitude = window.userLatitude;
-  longitude = window.userLongitude;
-}
-
-if (!Number.isFinite(latitude) ||
-    !Number.isFinite(longitude)) {
-  message.textContent =
-    "Adresse GPS introuvable. Vérifie le lieu.";
-  return;
-}
-  const { error } =
-    await supabaseClient
-      .from("wait_report")
-.insert({
-  place_id: placeId,
-  place_name: placeName,
-  wait_minutes: waitMinutes,
-  
-latitude: Number.isFinite(latitude) ? latitude : null,
-longitude: Number.isFinite(longitude) ? longitude : null
-
-});
-if (error) {
-    console.error("Erreur Supabase :", error);
-    message.textContent = "Erreur : " + error.message;
-    return;
-}
-  message.textContent =
-    "✓ Temps d'attente publié !";
-
-  document.getElementById("placeName").value="";
-  document.getElementById("waitMinutes").value="";
-
-  loadReports();
-  loadMapMarkers();
-}
-
-
-// CHARGER LES SIGNALEMENTS
-
-function distanceKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
-async function loadReports(){
-
-  const container =
-    document.getElementById("reports");
-
-  const { data, error } =
-    await supabaseClient
-      .from("wait_report")
-  .select(
-      "id,created_at,place_name,wait_minutes,latitude,longitude"
-      )
-      .order("created_at",{
-        ascending:false
-      })
-      .limit(1000);
-
-  if(error){
-    console.error(error);
-    container.innerHTML =
-      '<p class="status">Impossible de charger les données.</p>';
-    return;
-  }
-
-  if(!data || data.length===0){
-    container.innerHTML =
-      '<p class="status">Aucun signalement pour le moment.</p>';
-    return;
-  }
-
-  container.innerHTML="";
-
-  data.forEach(report=>{
-    if (
-  Number.isFinite(window.userLatitude) &&
-  Number.isFinite(window.userLongitude)
-) {
-  if (report.latitude == null || report.longitude == null) return;
-
-  const distance = distanceKm(
-    window.userLatitude,
-    window.userLongitude,
-    Number(report.latitude),
-    Number(report.longitude)
-  );
-
-  if (!Number.isFinite(distance)) return;
-}
-
-const distanceTexte =
-  Number.isFinite(window.userLatitude) &&
-  Number.isFinite(window.userLongitude) &&
-  report.latitude != null &&
-  report.longitude != null
-    ? distanceKm(
-        window.userLatitude,
-        window.userLongitude,
-        Number(report.latitude),
-        Number(report.longitude)
-      ).toFixed(1) + " km"
-    : "";
-
-    const item =
-      document.createElement("div");
-
-    item.className="report";
-
-    const name =
-      document.createElement("strong");
-
-    name.textContent =
-      report.place_name || "Lieu";
-
-    const wait =
-      document.createElement("div");
-
-    wait.className="wait";
-    wait.textContent =
-      report.wait_minutes + " min";
-
-    const date =
-      document.createElement("small");
-
-    date.textContent =
-      new Date(report.created_at)
-      .toLocaleString("fr-FR");
-
-    item.appendChild(name);
-    item.appendChild(wait);
-    item.appendChild(date);
-
-    
-if (distanceTexte) {
-  const distanceElement = document.createElement("div");
-  distanceElement.textContent = "📍 À " + distanceTexte;
-  item.appendChild(distanceElement);
-}
-
-
-    container.appendChild(item);
-  });
-}
-
-
-// ACTUALISATION TEMPS RÉEL
-
-supabaseClient
-.channel("waitless-live")
-.on(
-  "postgres_changes",
-  {
-    event:"*",
-    schema:"public",
-    table:"wait_report"
-  },
-  
-() => {
-  loadReports();
-  loadMapMarkers();
-}
-
-)
-.subscribe();
-
-loadReports();
-
-const savedView = JSON.parse(localStorage.getItem("waitlessMapView") || "null");
-
-const map = L.map("map").setView(
-  savedView?.center ?? [46.603354, 1.888334],
-  savedView?.zoom ?? 6
-);
-
-map.on("moveend", () => {
-  const center = map.getCenter();
-  localStorage.setItem("waitlessMapView", JSON.stringify({
-    center: [center.lat, center.lng],
-    zoom: map.getZoom()
-  }));
-});  
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-const markers = L.layerGroup().addTo(map);
-
-async function loadMapMarkers() {
-  const { data, error } = await supabaseClient
-    .from("wait_report")
-    .select("place_name,wait_minutes,latitude,longitude");
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  markers.clearLayers();
-console.log("Signalements reçus :", data);
-  (data || []).forEach(report => {
-    if (report.latitude == null || report.longitude == null) return;
-
-    const lat = Number(report.latitude);
-    const lon = Number(report.longitude);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-
-    const popup = document.createElement("div");
-    const name = document.createElement("strong");
-    name.textContent = report.place_name || "Lieu";
-    const wait = document.createElement("p");
-    wait.textContent = `${report.wait_minutes} min d'attente`;
-    popup.append(name, wait);
-
-    L.marker([lat, lon])
-  .addTo(markers)
- .bindPopup(popup); 
-  });
-}
-
-loadMapMarkers();
-
-async function searchCity() {
-  const city = document
-    .getElementById("citySearch").value.trim();
-
-  const message = document.getElementById("cityMessage");
-
-  if (!city) {
-    message.textContent = "Saisis une ville.";
-    return;
-  }
-
-  message.textContent = "Recherche en cours...";
-
-  try {
-    const response = await fetch(
-      "https://nominatim.openstreetmap.org/search?" +
-      new URLSearchParams({
-        q: city,
-        format: "json",
-        limit: "1"
-      })
-    );
-
-    if (!response.ok) throw new Error("Recherche impossible");
-
-    const results = await response.json();
-   console.log("Coordonnées trouvées :", results); 
-
-    if (results.length === 0) {
-      message.textContent = "Ville introuvable.";
-      return;
-    }
-
-    map.setView([
-      Number(results[0].lat),
-      Number(results[0].lon)
-     ], 12);
-                message.textContent = "Carte centrée sur " + city + " | GPS : " + results[0].lat + ", " + results[0].lon;
-  } catch (error) {
-    message.textContent = "Erreur de recherche.";
-  }
-}
-
+const KEY='waitless_global_demo_v1';
+const seed=()=>({version:1,venues:[
+{id:'demo-paris',name:'Demo Café Paris',city:'Paris',country:'France',icon:'☕',minutes:8,demo:true},
+{id:'demo-london',name:'Demo Health London',city:'London',country:'United Kingdom',icon:'🏥',minutes:12,demo:true},
+{id:'demo-nyc',name:'Demo Service NYC',city:'New York',country:'United States',icon:'🏢',minutes:10,demo:true},
+{id:'demo-tokyo',name:'Demo Tokyo Restaurant',city:'Tokyo',country:'Japan',icon:'🍽️',minutes:6,demo:true},
+{id:'demo-sao',name:'Demo Café São Paulo',city:'São Paulo',country:'Brazil',icon:'☕',minutes:9,demo:true},
+{id:'demo-dubai',name:'Demo Dubai Store',city:'Dubai',country:'United Arab Emirates',icon:'🏬',minutes:7,demo:true},
+{id:'demo-berlin',name:'Demo Salon Berlin',city:'Berlin',country:'Germany',icon:'💇',minutes:15,demo:true},
+{id:'demo-delhi',name:'Demo Delhi Services',city:'New Delhi',country:'India',icon:'🏢',minutes:11,demo:true}
+],tickets:[]});
+let state;try{state=JSON.parse(localStorage.getItem(KEY)||'null');if(!valid(state))state=seed()}catch(e){state=seed()}
+let lang=localStorage.getItem('waitless_global_lang')||'fr';if(!TEXT[lang])lang='fr';let current='explore',onConfirm=null;
+const $=id=>document.getElementById(id),t=k=>TEXT[lang][k]||TEXT.en[k]||k;
+function valid(s){return !!(s&&s.version===1&&Array.isArray(s.venues)&&Array.isArray(s.tickets)&&s.venues.length<5000&&s.tickets.length<100000&&s.venues.every(v=>v&&typeof v.id==='string'&&typeof v.name==='string'&&typeof v.city==='string'&&typeof v.country==='string'&&typeof v.minutes==='number'&&v.minutes>=1&&v.minutes<=180)&&s.tickets.every(v=>v&&typeof v.id==='string'&&typeof v.venueId==='string'&&['waiting','called','done','cancelled'].includes(v.status)))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){notify('Storage unavailable')}render()}
+function esc(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function uid(){return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2)}
+function waiting(vid){return state.tickets.filter(x=>x.venueId===vid&&x.status==='waiting').sort((a,b)=>a.created-b.created)}
+function called(vid){return state.tickets.filter(x=>x.venueId===vid&&x.status==='called').sort((a,b)=>a.created-b.created)}
+function venue(vid){return state.venues.find(v=>v.id===vid)}
+function notify(message){const a=$('toast');a.textContent=message;a.hidden=false;clearTimeout(notify.timer);notify.timer=setTimeout(()=>a.hidden=true,3200)}
+function confirmModal(title,desc,callback){$('modalTitle').textContent=title;$('modalDesc').textContent=desc;onConfirm=callback;$('modal').classList.add('open');$('modalConfirm').focus()}
+function closeModal(){$('modal').classList.remove('open');onConfirm=null}
+$('modalCancel').addEventListener('click',closeModal);$('modalConfirm').addEventListener('click',()=>{const fn=onConfirm;closeModal();if(fn)fn()});$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function show(id){if(!['reports','explore','tickets','business','pricing'].includes(id))return;current=id;document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.go===id));render();window.scrollTo({top:180,behavior:'smooth'})}
+function translate(){document.documentElement.lang=lang;document.querySelectorAll('[data-i]').forEach(x=>{x.innerHTML=t(x.dataset.i)});$('search').placeholder=lang==='fr'?'Paris, Londres, Tokyo…':'Paris, London, Tokyo…';render()}
+function renderPlaces(){const old=$('country').value;const countries=[...new Set(state.venues.map(p=>p.country))].sort((a,b)=>a.localeCompare(b,lang));$('country').innerHTML='<option value="">'+esc(t('allCountries'))+'</option>'+countries.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');$('country').value=countries.includes(old)?old:'';const q=$('search').value.trim().toLocaleLowerCase();const c=$('country').value;const places=state.venues.filter(v=>(!c||v.country===c)&&(!q||[v.name,v.city,v.country].some(x=>x.toLocaleLowerCase().includes(q))));$('places').innerHTML=places.map(v=>{const n=waiting(v.id).length;const ticket=state.tickets.some(x=>x.venueId===v.id&&['waiting','called'].includes(x.status));return `<article class="card place"><div class="placehead"><div class="placeicon" aria-hidden="true">${esc(v.icon)}</div><span class="pill ${v.demo?'demo':'local'}">${esc(t(v.demo?'demo':'local'))}</span></div><div><h3>${esc(v.name)}</h3><div class="flag">📍 ${esc(v.city)} · ${esc(v.country)}</div></div><div class="waitblock"><span class="waitnum">${n*v.minutes}</span><div class="waitunit">${esc(t('unitMinute'))} · ${n} ${esc(t('waiting'))}<br>${v.minutes} ${esc(t('waitMinutes'))}</div></div><div class="actions"><button class="btn primary" data-action="join" data-id="${esc(v.id)}" ${ticket?'disabled':''}>${esc(ticket?t('active'):t('join'))}</button></div></article>`}).join('')||`<div class="empty" style="grid-column:1/-1">🌍<strong>${esc(t('noneFound'))}</strong>${esc(t('trySearch'))}</div>`}
+function renderTickets(){const tickets=[...state.tickets].sort((a,b)=>b.created-a.created);$('ticketList').innerHTML=tickets.map(x=>{const v=venue(x.venueId);if(!v)return '';const w=waiting(x.venueId);const ahead=w.findIndex(n=>n.id===x.id);const pos=ahead>=0?ahead+1:0;return `<div class="card ticket"><div><div class="sub">${esc(v.name)} · ${esc(v.city)}</div><h3 class="code">${esc(x.code)}</h3><div class="sub">${esc(t('ticketCode'))} · ${new Date(x.created).toLocaleString(lang)}</div><div style="margin-top:10px" class="sub">${x.status==='waiting'?esc(t('position'))+': <b>'+pos+'</b> · '+esc(t('estimated'))+': <b>'+ahead*v.minutes+' '+esc(t('unitMinute'))+'</b>':esc(t('tips'))}</div></div><div class="actions" style="flex:initial;flex-wrap:wrap"><span class="status ${esc(x.status)}">${esc(t('status'+x.status[0].toUpperCase()+x.status.slice(1)))}</span>${['waiting','called'].includes(x.status)?`<button class="btn danger mini" data-action="cancel" data-id="${esc(x.id)}">${esc(t('leave'))}</button>`:''}</div></div>`}).join('')||`<div class="empty">🎟️<strong>${esc(t('noTickets'))}</strong>${esc(t('noTicketsHelp'))}</div>`}
+function renderManager(){const all=state.venues;const active=state.tickets.filter(x=>x.status==='waiting').length;const served=state.tickets.filter(x=>x.status==='done').length;$('mPlaces').textContent=all.length;$('mWaiting').textContent=active;$('mServed').textContent=served;$('managerList').innerHTML=all.map(v=>{const w=waiting(v.id),c=called(v.id);return `<div class="manager"><div><h4>${esc(v.icon)} ${esc(v.name)}</h4><div class="sub">${esc(v.city)} · <b>${w.length}</b> ${esc(t('waiting'))} · <b>${c.length}</b> ${esc(t('statusCalled')).toLowerCase()}</div></div><div class="actions"><button class="btn mini primary" data-action="call" data-id="${esc(v.id)}" ${!w.length?'disabled':''}>${esc(t('callNext'))}</button><button class="btn mini outline" data-action="complete" data-id="${esc(v.id)}" ${!c.length?'disabled':''}>${esc(t('complete'))}</button></div></div>`}).join('')}
+function render(){renderPlaces();renderTickets();renderManager()}
+$('search').addEventListener('input',renderPlaces);$('country').addEventListener('change',renderPlaces);
+document.addEventListener('click',e=>{const go=e.target.closest('[data-go]');if(go){show(go.dataset.go);return}const btn=e.target.closest('[data-action]');if(!btn)return;const id=btn.dataset.id;switch(btn.dataset.action){case 'join':{const v=venue(id);if(!v)return;if(state.tickets.some(x=>x.venueId===id&&['waiting','called'].includes(x.status))){notify(t('alreadyTicket'));return}confirmModal(t('joinConfirm')+' '+v.name+'?',t('joinDetail'),()=>{const code='WL-'+Math.random().toString(36).slice(2,8).toUpperCase();state.tickets.push({id:uid(),venueId:id,code,status:'waiting',created:Date.now()});save();notify(t('ticketCreated')+' • '+code);show('tickets')});break}
+case 'cancel':{const x=state.tickets.find(v=>v.id===id);if(!x)return;confirmModal(t('confirmCancel'),t('confirmCancelDesc'),()=>{x.status='cancelled';save();notify(t('ticketRemoved'))});break}
+case 'call':{const x=waiting(id)[0];if(!x)return;x.status='called';save();notify(t('nextCalled')+' • '+x.code);break}
+case 'complete':{const x=called(id)[0];if(!x)return;x.status='done';save();notify(t('ticketDone')+' • '+x.code);break}}});
+$('placeForm').addEventListener('submit',e=>{e.preventDefault();const name=$('venueName').value.trim(),city=$('venueCity').value.trim(),country=$('venueCountry').value.trim(),minutes=Number($('venueMinutes').value),icon=$('venueType').value;if(!name||!city||!country||!Number.isInteger(minutes)||minutes<1||minutes>180||![...'☕🏬🍽️🏥💇🏢'].some(c=>icon.includes(c))){notify(t('invalid'));return}state.venues.unshift({id:uid(),name,city,country,icon,minutes,demo:false});save();e.target.reset();$('venueMinutes').value=10;notify(t('created'))});
+$('language').addEventListener('change',e=>{lang=e.target.value;if(!TEXT[lang])lang='fr';try{localStorage.setItem('waitless_global_lang',lang)}catch(e){}translate()});
+$('exportBtn').addEventListener('click',()=>{const a=document.createElement('a');const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(b);a.href=url;a.download='WaitLess-sauvegarde-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notify(t('exported'))});
+$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f||f.size>5000000){notify(t('importError'));return}try{const x=JSON.parse(await f.text());if(!valid(x))throw Error('bad file');state=x;save();notify(t('imported'))}catch(err){notify(t('importError'))}});
+$('resetBtn').addEventListener('click',()=>confirmModal(t('resetTitle'),t('resetDesc'),()=>{state=seed();$('search').value='';$('country').value='';save();notify(t('resetDone'))}));
+$('language').value=lang;translate();
+})();
 </script>
-
 </body>
 </html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaitLess</title>
+  
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  #map {
+  width: 100%;
+  height: 350px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f7fb;
+  color:#172033;
+}
+}
+header{
+  background:#111827;
+  color:white;
+  padding:28px 20px;
+  text-align:center;
+}
+
+header h1{
+  margin:0;
+  font-size:34px;
+}
+
+header p{
+  margin:8px 0 0;
+  color:#d1d5db;
+}
+
+main{
+  max-width:650px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  margin-bottom:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+h2{
+  margin-top:0;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:0;
+  border-radius:10px;
+  background:#10b981;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#059669;
+}
+
+.report{
+  border-bottom:1px solid #eee;
+  padding:14px 0;
+}
+
+.report:last-child{
+  border-bottom:0;
+}
+
+.wait{
+  font-size:22px;
+  font-weight:bold;
+  color:#059669;
+}
+
+.status{
+  text-align:center;
+  color:#6b7280;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  color:#6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>⏱ WaitLess</h1>
+  <p>Moins d'attente. Plus de temps pour vous.</p>
+</header>
+
+<main>
+
+<div class="card">
+  <h2>Signaler une attente</h2>
+
+  <input
+    id="placeName"
+    type="text"
+    placeholder="Nom du lieu"
+  >
+
+<button type="button" onclick="rechercherEtablissement()">
+  🔎 Rechercher un établissement
+</button>
+
+<div id="placeResults" style="margin-top:12px;"></div>
+
+  <button type="button" onclick="getLocation()">
+  📍 Utiliser ma position
+</button>
+  
+  <input
+    id="waitMinutes"
+    type="number"
+    min="0"
+    placeholder="Temps d'attente en minutes"
+  >
+
+  <button onclick="sendReport()">
+    Publier le temps d'attente
+  </button>
+
+  <p id="message" class="status"></p>
+</div>
+
+<div class="card">
+  <h2>Temps d'attente récents</h2>
+
+  <div id="reports">
+    <p class="status">Chargement...</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>🔎 Rechercher une ville</h2>
+  <input id="citySearch"
+    placeholder="Nantes, Paris, Rennes">
+  <button onclick="searchCity()">
+    Rechercher
+  </button>
+  <p id="cityMessage"></p>
+</div>
+
+<div class="card">
+  <h2>🗺️ Carte des temps d'attente</h2>
+  <div id="map"></div>
+</div>
+
+</main>
+
+<footer>
+  WaitLess • Temps d'attente partagés en temps réel
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://ropvmaqgtfjsrnipyvth.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_fvPrFKonEXySg93KfxuoFQ_BVjUjCER";
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+  function getLocation() {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas disponible sur cet appareil.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      window.userLatitude = position.coords.latitude;
+      window.userLongitude = position.coords.longitude;
+
+      const champLieu = document.getElementById("placeName");
+if (!champLieu.value.trim()) {
+  champLieu.value = "Ma position";
+}
+      alert("📍 Position récupérée !");
+    },
+    function() {
+      alert("Impossible de récupérer votre position.");
+    }
+  );
+}
+// AJOUTER UN SIGNALEMENT
+
+async function rechercherEtablissement() {
+  const lieu = document.getElementById("placeName").value.trim();
+
+  if (!lieu) {
+    alert("Indique le nom et la ville de l'établissement.");
+    return;
+  }
+        try {
+const url = "https://nominatim.openstreetmap.org/search?" +
+  new URLSearchParams({
+    q: lieu,
+    format: "json",
+    limit: "5"
+  });
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Recherche impossible");
+
+    const resultats = await response.json();
+
+    if (!resultats.length) {
+      alert("Établissement introuvable. Précise son adresse.");
+      return;
+    }
+
+          
+const zone = document.getElementById("placeResults");
+zone.innerHTML = "";
+window.selectedPlace = null;
+
+const index = await new Promise((resolve) => {
+  resultats.forEach((adresse, i) => {
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.textContent = adresse.display_name;
+    bouton.style.cssText =
+      "display:block;width:100%;text-align:left;margin:8px 0;padding:12px;";
+
+    bouton.onclick = () => {
+      zone.innerHTML = "";
+      resolve(i);
+    };
+
+    zone.appendChild(bouton);
+  });
+});
+
+const lieuTrouve = resultats[index];
+
+
+    window.userLatitude = Number(lieuTrouve.lat);
+    window.userLongitude = Number(lieuTrouve.lon);
+window.selectedPlace = {
+  name: lieu,
+  latitude: Number(lieuTrouve.lat),
+  longitude: Number(lieuTrouve.lon)
+};
+    alert("Adresse trouvée : " + lieuTrouve.display_name);
+  } catch (error) {
+    alert("Erreur : " + error.message);
+  }
+}
+
+async function sendReport(){
+
+  const placeName =
+    document.getElementById("placeName")
+    .value.trim();
+
+  const waitMinutes =
+    parseInt(
+      document.getElementById("waitMinutes").value
+    );
+
+  const message =
+    document.getElementById("message");
+
+  if(
+    !placeName ||
+    Number.isNaN(waitMinutes) ||
+    waitMinutes < 0
+  ){
+    message.textContent =
+      "Indique le lieu et un temps d'attente valide.";
+    return;
+  }
+
+  message.textContent = "Publication...";
+
+  const placeId =
+    placeName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-|-$/g,"");
+
+let latitude = null;
+let longitude = null;
+
+if (
+  window.selectedPlace &&
+  window.selectedPlace.name === placeName
+) {
+  latitude = window.selectedPlace.latitude;
+  longitude = window.selectedPlace.longitude;
+}
+
+  
+if (
+  placeName === "Ma position" &&
+  Number.isFinite(window.userLatitude) &&
+  Number.isFinite(window.userLongitude)
+) {
+  latitude = window.userLatitude;
+  longitude = window.userLongitude;
+}
+
+if (!Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)) {
+  message.textContent =
+    "Adresse GPS introuvable. Vérifie le lieu.";
+  return;
+}
+  const { error } =
+    await supabaseClient
+      .from("wait_report")
+.insert({
+  place_id: placeId,
+  place_name: placeName,
+  wait_minutes: waitMinutes,
+  
+latitude: Number.isFinite(latitude) ? latitude : null,
+longitude: Number.isFinite(longitude) ? longitude : null
+
+});
+if (error) {
+    console.error("Erreur Supabase :", error);
+    message.textContent = "Erreur : " + error.message;
+    return;
+}
+  message.textContent =
+    "✓ Temps d'attente publié !";
+
+  document.getElementById("placeName").value="";
+  document.getElementById("waitMinutes").value="";
+
+  loadReports();
+  loadMapMarkers();
+}
+
+
+// CHARGER LES SIGNALEMENTS
+
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+async function loadReports(){
+
+  const container =
+    document.getElementById("reports");
+
+  const { data, error } =
+    await supabaseClient
+      .from("wait_report")
+  .select(
+      "id,created_at,place_name,wait_minutes,latitude,longitude"
+      )
+      .order("created_at",{
+        ascending:false
+      })
+      .limit(1000);
+
+  if(error){
+    console.error(error);
+    container.innerHTML =
+      '<p class="status">Impossible de charger les données.</p>';
+    return;
+  }
+
+  if(!data || data.length===0){
+    container.innerHTML =
+      '<p class="status">Aucun signalement pour le moment.</p>';
+    return;
+  }
+
+  container.innerHTML="";
+
+  data.forEach(report=>{
+    if (
+  Number.isFinite(window.userLatitude) &&
+  Number.isFinite(window.userLongitude)
+) {
+  if (report.latitude == null || report.longitude == null) return;
+
+  const distance = distanceKm(
+    window.userLatitude,
+    window.userLongitude,
+    Number(report.latitude),
+    Number(report.longitude)
+  );
+
+  if (!Number.isFinite(distance)) return;
+}
+
+const distanceTexte =
+  Number.isFinite(window.userLatitude) &&
+  Number.isFinite(window.userLongitude) &&
+  report.latitude != null &&
+  report.longitude != null
+    ? distanceKm(
+        window.userLatitude,
+        window.userLongitude,
+        Number(report.latitude),
+        Number(report.longitude)
+      ).toFixed(1) + " km"
+    : "";
+
+    const item =
+      document.createElement("div");
+
+    item.className="report";
+
+    const name =
+      document.createElement("strong");
+
+    name.textContent =
+      report.place_name || "Lieu";
+
+    const wait =
+      document.createElement("div");
+
+    wait.className="wait";
+    wait.textContent =
+      report.wait_minutes + " min";
+
+    const date =
+      document.createElement("small");
+
+    date.textContent =
+      new Date(report.created_at)
+      .toLocaleString("fr-FR");
+
+    item.appendChild(name);
+    item.appendChild(wait);
+    item.appendChild(date);
+
+    
+if (distanceTexte) {
+  const distanceElement = document.createElement("div");
+  distanceElement.textContent = "📍 À " + distanceTexte;
+  item.appendChild(distanceElement);
+}
+
+
+    container.appendChild(item);
+  });
+}
+
+
+// ACTUALISATION TEMPS RÉEL
+
+supabaseClient
+.channel("waitless-live")
+.on(
+  "postgres_changes",
+  {
+    event:"*",
+    schema:"public",
+    table:"wait_report"
+  },
+  
+() => {
+  loadReports();
+  loadMapMarkers();
+}
+
+)
+.subscribe();
+
+loadReports();
+
+const savedView = JSON.parse(localStorage.getItem("waitlessMapView") || "null");
+
+const map = L.map("map").setView(
+  savedView?.center ?? [46.603354, 1.888334],
+  savedView?.zoom ?? 6
+);
+
+map.on("moveend", () => {
+  const center = map.getCenter();
+  localStorage.setItem("waitlessMapView", JSON.stringify({
+    center: [center.lat, center.lng],
+    zoom: map.getZoom()
+  }));
+});  
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+const markers = L.layerGroup().addTo(map);
+
+async function loadMapMarkers() {
+  const { data, error } = await supabaseClient
+    .from("wait_report")
+    .select("place_name,wait_minutes,latitude,longitude");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  markers.clearLayers();
+console.log("Signalements reçus :", data);
+  (data || []).forEach(report => {
+    if (report.latitude == null || report.longitude == null) return;
+
+    const lat = Number(report.latitude);
+    const lon = Number(report.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+    const popup = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = report.place_name || "Lieu";
+    const wait = document.createElement("p");
+    wait.textContent = `${report.wait_minutes} min d'attente`;
+    popup.append(name, wait);
+
+    L.marker([lat, lon])
+  .addTo(markers)
+ .bindPopup(popup); 
+  });
+}
+
+loadMapMarkers();
+
+async function searchCity() {
+  const city = document
+    .getElementById("citySearch").value.trim();
+
+  const message = document.getElementById("cityMessage");
+
+  if (!city) {
+    message.textContent = "Saisis une ville.";
+    return;
+  }
+
+  message.textContent = "Recherche en cours...";
+
+  try {
+    const response = await fetch(
+      "https://nominatim.openstreetmap.org/search?" +
+      new URLSearchParams({
+        q: city,
+        format: "json",
+        limit: "1"
+      })
+    );
+
+    if (!response.ok) throw new Error("Recherche impossible");
+
+    const results = await response.json();
+   console.log("Coordonnées trouvées :", results); 
+
+    if (results.length === 0) {
+      message.textContent = "Ville introuvable.";
+      return;
+    }
+
+    map.setView([
+      Number(results[0].lat),
+      Number(results[0].lon)
+     ], 12);
+                message.textContent = "Carte centrée sur " + city + " | GPS : " + results[0].lat + ", " + results[0].lon;
+  } catch (error) {
+    message.textContent = "Erreur de recherche.";
+  }
+}
+
+</script>
+
+</body>
+</html>
